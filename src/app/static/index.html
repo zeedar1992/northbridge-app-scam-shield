@@ -30,12 +30,12 @@
       </div>
       <div class="kpis" id="kpis"></div>
       <div class="grid2">
-        <div class="card"><h3>Scam value intercepted per day: rules vs model <small>(hold-out + live window, £)</small></h3><canvas id="chartDaily" height="130"></canvas></div>
-        <div class="card"><h3>Value caught by scam typology <small>(same alert budget, test window)</small></h3><canvas id="chartType" height="130"></canvas></div>
+        <div class="card"><h2>Scam value intercepted per day: rules vs model <small>(hold-out + live window, £)</small></h2><canvas id="chartDaily" height="130"></canvas></div>
+        <div class="card"><h2>Value caught by scam typology <small>(same alert budget, test window)</small></h2><canvas id="chartType" height="130"></canvas></div>
       </div>
       <div class="grid2">
-        <div class="card"><h3>Business case <small>(annualised for Northbridge, assumptions explicit)</small></h3><table id="bizcase" class="tbl"></table></div>
-        <div class="card"><h3>Live operations <small>(Lakebase, real time)</small></h3><div id="liveops" class="liveops"></div>
+        <div class="card"><h2>Business case <small>(annualised for Northbridge, assumptions explicit)</small></h2><table id="bizcase" class="tbl"></table></div>
+        <div class="card"><h2>Live operations <small>(Lakebase, real time)</small></h2><div id="liveops" class="liveops"></div>
           <p class="muted">Analyst decisions are written to Lakebase and stream back to Unity Catalog through Lakehouse Sync, then feed model monitoring and retraining.</p></div>
       </div>
     </section>
@@ -44,7 +44,7 @@
     <section id="view-queue" class="view">
       <div class="queue">
         <div class="card list">
-          <div class="listhead"><h3>Held payments</h3>
+          <div class="listhead"><h2>Held payments</h2>
             <select id="statusFilter"><option>OPEN</option><option>IN_REVIEW</option><option>CLOSED</option><option>ALL</option></select></div>
           <div id="alertList"></div>
         </div>
@@ -56,7 +56,7 @@
     <section id="view-check" class="view">
       <div class="grid2">
         <div class="card">
-          <h3>Simulate an outbound Faster Payment</h3>
+          <h2>Simulate an outbound Faster Payment</h2>
           <p class="muted">The model scores the payment in real time. Customer and payee context comes from <b>Lakebase</b> point lookups (synced from Unity Catalog), the score from <b>Model Serving</b>, and the customer warning from <b>GenAI</b>.</p>
           <form id="checkForm" class="form">
             <label>Customer <select name="customer_id" id="custSel"></select></label>
@@ -79,7 +79,7 @@
     <!-- ============================== GENIE ============================== -->
     <section id="view-genie" class="view">
       <div class="card">
-        <h3>Ask Genie about scams, losses, alerts and mule accounts</h3>
+        <h2>Ask Genie about scams, losses, alerts and mule accounts</h2>
         <div class="suggest" id="suggest"></div>
         <form id="genieForm" class="genieform"><input id="genieQ" placeholder="e.g. Which scam type cost us the most in reimbursements last month?" /><button class="primary">Ask</button>
           <button type="button" id="genieNew" class="ghost">New conversation</button></form>

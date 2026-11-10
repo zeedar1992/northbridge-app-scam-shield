@@ -141,7 +141,7 @@ $("#checkForm").addEventListener("submit", async (ev) => {
   try {
     const r = await api("/api/check-payment", { method: "POST", body: JSON.stringify(body) });
     const colour = { CRITICAL: "var(--crit)", HIGH: "var(--warn)", MEDIUM: "var(--amber)", LOW: "var(--ok)" }[r.risk_band];
-    out.innerHTML = `<h3>Decision: ${esc(r.action.replaceAll("_", " "))}</h3>
+    out.innerHTML = `<h2 style="font-size:15px;margin:0 0 6px">Decision: ${esc(r.action.replaceAll("_", " "))}</h2>
       <div class="score" style="color:${colour}">${(r.risk_score * 100).toFixed(1)}<small style="font-size:16px"> /100 · ${r.risk_band}</small></div>
       <div class="lat">${Object.entries(r.latency_ms).map(([k, v]) => `<span>${k.replaceAll("_", " ")}: <b>${v} ms</b></span>`).join("")}</div>
       <b>Why</b><ul class="reasons">${(r.reason_codes || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>

@@ -1,7 +1,7 @@
 :root {
   --ink: #14213d; --ink-2: #3c4a63; --muted: #6b778c; --line: #e3e7ee; --bg: #f5f7fa; --card: #ffffff;
   --brand: #0b3d5c; --accent: #0f8b8d; --warn: #c2410c; --crit: #b42318; --ok: #157f3b; --amber: #b7791f;
-  --radius: 10px; font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 10px; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.45; }
@@ -25,7 +25,7 @@ main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 @media (max-width: 1000px) { .grid2, .queue { grid-template-columns: 1fr !important; } }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
-.card h3 { margin: 0 0 10px; font-size: 15px; } .card h3 small { color: var(--muted); font-weight: 400; }
+.card h2 { margin: 0 0 10px; font-size: 15px; } .card h2 small { color: var(--muted); font-weight: 400; }
 .muted { color: var(--muted); }
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl td, .tbl th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
@@ -45,7 +45,7 @@ main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
 .detail h2 { margin: 0 0 4px; font-size: 20px; }
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 16px; margin: 12px 0; }
 .facts div span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; }
-.genai { background: #f1f8f8; border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin: 10px 0; }
+.genai { background: #f1f8f8; border: 1px solid #d3e9ea; padding: 10px 14px; border-radius: 8px; margin: 10px 0; }
 .genai .tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; }
 ul.reasons { margin: 6px 0; padding-left: 18px; } ul.script { margin: 6px 0; padding-left: 18px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
