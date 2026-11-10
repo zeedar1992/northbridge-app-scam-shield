@@ -2,8 +2,10 @@
 
 | File | What it is |
 |---|---|
-| `job_run/run_summary.md` | Primary end-to-end Lakeflow Job run **590537578235560**: every task SUCCESS (incl. one repair of the GenAI step) |
-| `job_run/<task>.md` | Each notebook task as executed: code cells + real outputs (tables, prints, metrics, GenAI notes) |
+| `../notebooks_executed/*.ipynb` | **Executed notebooks with cell outputs embedded** (Jupyter, rendered by GitHub) |
+| `job_run/run_summary.md`, `job_run/run_log.json` | Primary end-to-end Lakeflow Job run **590537578235560**: every task SUCCESS (incl. one repair of the GenAI step) |
+| `job_run/<task>.md` | Each notebook task as executed: code cells + real outputs (tables, prints, metrics, GenAI notes) + logged exit value |
+| `pipeline_event_log.md` | Lakeflow pipeline run log from its event log: all updates, per-flow rows written, AUTO CDC upserts, expectation pass/fail, chronological events |
 | `job_run_full_refresh/` | Earlier full-refresh run **121437029937396** (initial load of 89 days; its GenAI step failed on the `temperature` parameter, which was fixed in the primary run) |
 | `incremental_run.md` | Next-day file arrives: Auto Loader ingests exactly 1 new file / 12,676 rows |
 | `platform_queries.md` | 21 live SQL checks across Lakeflow, Unity Catalog, ML, GenAI, metric view, Lakebase, Lakehouse Sync, Model Serving |

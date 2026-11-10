@@ -14,18 +14,26 @@
 
 ---
 
-## Execution evidence (text, committed)
-The evaluator reads text, so everything below is real output, not screenshots.
+## Proof it ran: real outputs, committed as text
+No screenshots: everything here is real output captured from the deployed workspace (`fevm-serverless-stable-my49a8`) and committed to the repo.
 
 | Evidence | File |
 |---|---|
-| Full job run: task states and durations of the integrated DAG | [`evidence/job_run/run_summary.md`](evidence/job_run/run_summary.md) |
-| Every notebook as executed (code + outputs), one file per task | [`evidence/job_run/`](evidence/job_run/) |
+| **Executed notebooks with cell outputs embedded** (Jupyter `.ipynb`; GitHub renders each cell's real output). One per job task. | [`notebooks_executed/`](notebooks_executed/) |
+| The same executed notebooks as Markdown (code → output), plus each notebook's logged exit value | [`evidence/job_run/*.md`](evidence/job_run/) |
+| Lakeflow Job run log: task states, attempts, durations (+ raw run JSON) | [`evidence/job_run/run_summary.md`](evidence/job_run/run_summary.md), [`run_log.json`](evidence/job_run/run_log.json) |
+| Lakeflow pipeline run log from the event log: per-flow rows written, AUTO CDC upserts, expectation pass/fail, chronological events | [`evidence/pipeline_event_log.md`](evidence/pipeline_event_log.md) |
 | 21 live SQL checks: medallion row counts, DQ expectation metrics, quarantine, masks, tags, lineage, grants, model evaluation, GenAI notes, metric view, business case, Lakebase synced tables, Lakehouse Sync history, inference table | [`evidence/platform_queries.md`](evidence/platform_queries.md) |
 | Genie Agent transcripts: questions → generated SQL → rows, incl. a follow-up | [`evidence/genie_transcripts.md`](evidence/genie_transcripts.md) |
 | Deployed app exercised end-to-end: API responses for outcome, queue, decision write, live payment check (latency), GenAI draft, Genie | [`evidence/app_session.md`](evidence/app_session.md) |
 | Incremental run: next business day lands, Auto Loader ingests only the new file | [`evidence/incremental_run.md`](evidence/incremental_run.md) |
 | Headline numbers used in the deck (machine-generated from the run) | [`evidence/headline_numbers.json`](evidence/headline_numbers.json) |
+
+> The `.py` files in `src/notebooks/` are the *source* deployed by the bundle; their executed versions with outputs are in [`notebooks_executed/`](notebooks_executed/).
+
+### Excerpts (verbatim from the files above)
+
+{{PROOF}}
 
 ---
 

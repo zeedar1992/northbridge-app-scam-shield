@@ -23,7 +23,8 @@ databricks bundle run scam_shield_app                 # deploys + starts the app
 databricks bundle run northbridge_journey --params through_date=2026-11-08
 
 # 5. Evidence
-python3 scripts/export_run_evidence.py <job_run_id> --out evidence/job_run      # executed notebooks -> Markdown
+python3 scripts/export_run_evidence.py <job_run_id>          # executed notebooks -> notebooks_executed/*.ipynb + evidence/job_run/*.md
+python3 scripts/export_pipeline_log.py                        # Lakeflow pipeline event log -> evidence/pipeline_event_log.md
 python3 scripts/collect_platform_evidence.py                                    # 21 live SQL checks
 python3 scripts/ask_genie_evidence.py <genie_space_id>                          # Genie transcripts
 APP_TOKEN=$(databricks auth token --profile <P> | jq -r .access_token) \

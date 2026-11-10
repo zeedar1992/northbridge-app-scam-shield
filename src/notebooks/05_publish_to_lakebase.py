@@ -210,11 +210,14 @@ if not any(c.postgres_schema == "scam_ops" for c in existing if getattr(c, "post
         print("created CDF config:", op.wait() if hasattr(op, "wait") else op)
     except Exception as e:
         print("Lakehouse Sync create:", str(e)[:400])
-try:
-    for s in w.postgres.list_cdf_statuses(db.name):
-        print(s)
-except Exception as e:
-    print("cdf statuses:", str(e)[:300])
+for c in w.postgres.list_cdf_configs(db.name):
+    print(f"Lakehouse Sync config: {c.name}\n  Postgres schema {c.postgres_schema}  ->  UC {c.catalog}.{c.schema}  (created {c.create_time})")
+# the CDC history tables it maintains in Unity Catalog (SCD2, one per Postgres table)
+display(spark.sql(f"""
+SELECT 'lb_case_decisions_history' AS uc_history_table, count(*) AS cdc_rows, count_if(_pg_change_type = 'insert') AS inserts, max(_timestamp) AS last_change
+FROM {CATALOG}.{OPS_HIST}.lb_case_decisions_history
+UNION ALL SELECT 'lb_alert_status_history', count(*), count_if(_pg_change_type = 'insert'), max(_timestamp) FROM {CATALOG}.{OPS_HIST}.lb_alert_status_history
+UNION ALL SELECT 'lb_payment_checks_history', count(*), count_if(_pg_change_type = 'insert'), max(_timestamp) FROM {CATALOG}.{OPS_HIST}.lb_payment_checks_history"""))
 # COMMAND ----------
 
 dbutils.notebook.exit(json.dumps({"latency": latency, "synced_tables": list(SYNCS)}))

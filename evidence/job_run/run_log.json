@@ -1,0 +1,347 @@
+{
+  "run_id": 590537578235560,
+  "run_name": "northbridge-app-scam-shield-journey",
+  "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
+    "user_cancelled_or_timedout": false
+  },
+  "start_time": 1794270130224,
+  "end_time": 1794300471606,
+  "run_page_url": "https://fevm-serverless-stable-my49a8.cloud.databricks.com/?o=7474652570256692#job/982865610976081/run/590537578235560",
+  "job_parameters": [
+    {
+      "default": "serverless_stable_my49a8_catalog",
+      "name": "catalog"
+    },
+    {
+      "default": "2026-11-07",
+      "name": "through_date",
+      "value": "2026-11-08"
+    }
+  ],
+  "repair_history": null,
+  "tasks": [
+    {
+      "task_key": "semantic_layer_business_case",
+      "run_id": 371704668802180,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270790565,
+      "end_time": 1794270807064,
+      "execution_duration": 14000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "ml_schema": "northbridge_ml"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/07_semantic_layer_and_business_case",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "semantic_layer_business_case",
+      "run_id": 477017422827782,
+      "attempt_number": 1,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794298973673,
+      "end_time": 1794299003793,
+      "execution_duration": 27000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "ml_schema": "northbridge_ml"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/07_semantic_layer_and_business_case",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "lakeflow_medallion_pipeline",
+      "run_id": 939281346104386,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270211386,
+      "end_time": 1794270304060,
+      "execution_duration": 92000,
+      "notebook_task": null,
+      "pipeline_task": {
+        "full_refresh": false,
+        "pipeline_id": "f05e573a-38cd-421c-85d2-ccbd15b5cb2a"
+      }
+    },
+    {
+      "task_key": "deploy_model_serving",
+      "run_id": 518133764689075,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270477457,
+      "end_time": 1794271127442,
+      "execution_duration": 647000,
+      "notebook_task": {
+        "base_parameters": {
+          "app_name": "northbridge-scam-shield",
+          "catalog": "{{job.parameters.catalog}}",
+          "ml_schema": "northbridge_ml",
+          "serving_endpoint": "northbridge-scam-risk"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/06_deploy_model_serving",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "score_and_genai_enrich",
+      "run_id": 111047790233868,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270477535,
+      "end_time": 1794270790241,
+      "execution_duration": 310000,
+      "notebook_task": {
+        "base_parameters": {
+          "batch_llm_endpoint": "databricks-claude-haiku-5-5",
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "max_genai_alerts": "300",
+          "ml_schema": "northbridge_ml"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/04_score_and_genai_enrich",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "score_and_genai_enrich",
+      "run_id": 302508417748477,
+      "attempt_number": 1,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794298617446,
+      "end_time": 1794298973246,
+      "execution_duration": 351000,
+      "notebook_task": {
+        "base_parameters": {
+          "batch_llm_endpoint": "databricks-claude-haiku-5-5",
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "max_genai_alerts": "300",
+          "ml_schema": "northbridge_ml"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/04_score_and_genai_enrich",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "uc_tags_lineage_audit",
+      "run_id": 493688955409281,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270304424,
+      "end_time": 1794270356994,
+      "execution_duration": 49000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/02_governance_catalog",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "publish_to_lakebase",
+      "run_id": 319271002139431,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270790505,
+      "end_time": 1794270826791,
+      "execution_duration": 34000,
+      "notebook_task": {
+        "base_parameters": {
+          "app_name": "northbridge-scam-shield",
+          "catalog": "{{job.parameters.catalog}}",
+          "lakebase_project": "northbridge-scam-ops",
+          "ml_schema": "northbridge_ml",
+          "ops_history_schema": "northbridge_ops_history",
+          "ops_schema": "northbridge_ops"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/05_publish_to_lakebase",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "publish_to_lakebase",
+      "run_id": 818180431527637,
+      "attempt_number": 1,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794298973603,
+      "end_time": 1794299014024,
+      "execution_duration": 37000,
+      "notebook_task": {
+        "base_parameters": {
+          "app_name": "northbridge-scam-shield",
+          "catalog": "{{job.parameters.catalog}}",
+          "lakebase_project": "northbridge-scam-ops",
+          "ml_schema": "northbridge_ml",
+          "ops_history_schema": "northbridge_ops_history",
+          "ops_schema": "northbridge_ops"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/05_publish_to_lakebase",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "publish_to_lakebase",
+      "run_id": 471860505283008,
+      "attempt_number": 2,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794300404319,
+      "end_time": 1794300471236,
+      "execution_duration": 62000,
+      "notebook_task": {
+        "base_parameters": {
+          "app_name": "northbridge-scam-shield",
+          "catalog": "{{job.parameters.catalog}}",
+          "lakebase_project": "northbridge-scam-ops",
+          "ml_schema": "northbridge_ml",
+          "ops_history_schema": "northbridge_ops_history",
+          "ops_schema": "northbridge_ops"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/05_publish_to_lakebase",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "train_scam_model",
+      "run_id": 514710607757359,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270304335,
+      "end_time": 1794270477133,
+      "execution_duration": 169000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "ml_schema": "northbridge_ml"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/03_train_scam_model",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "uc_governance_setup",
+      "run_id": 225137203621598,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270130257,
+      "end_time": 1794270161373,
+      "execution_duration": 27000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "fraud_schema": "northbridge_fraud",
+          "raw_schema": "northbridge_raw"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/00_governance_setup",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    },
+    {
+      "task_key": "land_raw_files",
+      "run_id": 1083923923384494,
+      "attempt_number": 0,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS",
+        "state_message": "",
+        "user_cancelled_or_timedout": false
+      },
+      "start_time": 1794270161784,
+      "end_time": 1794270211063,
+      "execution_duration": 47000,
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "{{job.parameters.catalog}}",
+          "raw_schema": "northbridge_raw",
+          "through_date": "{{job.parameters.through_date}}"
+        },
+        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/01_generate_raw_data",
+        "source": "WORKSPACE"
+      },
+      "pipeline_task": null
+    }
+  ]
+}
