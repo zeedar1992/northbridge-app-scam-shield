@@ -1,6 +1,6 @@
 # Platform evidence: live query results
 
-Captured 2026-11-10 08:32 UTC against workspace `fevm-serverless-stable-my49a8` via `databricks experimental aitools tools query` (SQL warehouse `1035b8c40230fe40`).
+Captured 2026-11-10 09:16 UTC against workspace `fevm-serverless-stable-my49a8` via `databricks experimental aitools tools query` (SQL warehouse `1035b8c40230fe40`).
 Pipeline id: `f05e573a-38cd-421c-85d2-ccbd15b5cb2a`. Every block below is the real query and its real result.
 
 ## 1. Lakeflow: rows per medallion table
@@ -64,8 +64,8 @@ FROM e GROUP BY 1, 2 ORDER BY 1, 2
 | serverless_stable_my49a8_catalog.northbridge_fraud.silver_payments_validated | gbp_only | 0 | 2250030 |
 | serverless_stable_my49a8_catalog.northbridge_fraud.silver_payments_validated | no_rescued_data | 0 | 2250030 |
 | serverless_stable_my49a8_catalog.northbridge_fraud.silver_payments_validated | payment_id_present | 0 | 2250030 |
-| serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims | claim_has_payment | 0 | 10974 |
-| serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims | valid_outcome | 0 | 10974 |
+| serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims | claim_has_payment | 0 | 13766 |
+| serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims | valid_outcome | 0 | 13766 |
 
 ## 4. Lakeflow: quarantine reasons
 
@@ -87,6 +87,7 @@ FROM event_log('f05e573a-38cd-421c-85d2-ccbd15b5cb2a') WHERE event_type = 'updat
 
 | state | timestamp | update_id |
 |---|---|---|
+| COMPLETED | 2026-11-10T09:04:27.478Z | f4b83762-3216-4414-8c4b-2478218fa083 |
 | COMPLETED | 2026-11-10T00:25:01.857Z | 958c7547-7fff-41b2-a49b-d8f9c36646c6 |
 | COMPLETED | 2026-11-09T23:31:12.296Z | 1019bcf1-afa0-46f3-9059-da563c893001 |
 | COMPLETED | 2026-11-09T23:14:45.025Z | eea7d666-965c-42c8-93b8-68af20ead3c4 |
@@ -257,8 +258,8 @@ SELECT * FROM serverless_stable_my49a8_catalog.northbridge_ml.model_evaluation
 
 | alerts | approach | count_recall | model_version | pr_auc | precision | roc_auc | scam_value_caught_gbp | scams_caught | test_window | value_recall |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1533 | rules_engine | 0.1686 | 4 |  | 0.0678 |  | 1387811.27 | 104 | 2026-10-10..2026-10-29 | 0.5827 |
-| 1533 | ml_model_same_budget | 0.7812 | 4 | 0.609418707135091 | 0.3144 | 0.9957889147668766 | 2250955.03 | 482 | 2026-10-10..2026-10-29 | 0.945 |
+| 1533 | rules_engine | 0.1686 | 5 |  | 0.0678 |  | 1387811.27 | 104 | 2026-10-10..2026-10-29 | 0.5827 |
+| 1533 | ml_model_same_budget | 0.7812 | 5 | 0.609418707135091 | 0.3144 | 0.9957889147668766 | 2250955.03 | 482 | 2026-10-10..2026-10-29 | 0.945 |
 
 ## 12. ML: value recall by scam typology
 
@@ -285,10 +286,10 @@ FROM serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores GROUP B
 
 | confirmed_scams | model_version | payments | risk_band | rules_alerts | scam_value_gbp |
 |---|---|---|---|---|---|
-| 783 | 4 | 860 | CRITICAL | 284 | 6081848.0 |
-| 1686 | 4 | 7774 | HIGH | 995 | 3698297.0 |
-| 70 | 4 | 5604 | MEDIUM | 546 | 61201.0 |
-| 152 | 4 | 1113350 | LOW | 5112 | 158656.0 |
+| 783 | 5 | 860 | CRITICAL | 284 | 6081848.0 |
+| 1686 | 5 | 7774 | HIGH | 995 | 3698297.0 |
+| 70 | 5 | 5604 | MEDIUM | 546 | 61201.0 |
+| 152 | 5 | 1113350 | LOW | 5112 | 158656.0 |
 
 ## 14. GenAI: alert queue enrichment summary (ai_query, Claude)
 
@@ -300,12 +301,13 @@ FROM serverless_stable_my49a8_catalog.northbridge_ml.alert_queue GROUP BY 1, 2 O
 
 | alerts | avg_risk | missed_by_rules | model | recommended_action | suspected_scam_type |
 |---|---|---|---|---|---|
-| 95 | 0.923 | 78 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | purchase |
-| 84 | 0.947 | 61 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | unclear |
-| 41 | 0.931 | 33 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | advance_fee |
-| 38 | 0.937 | 23 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | impersonation |
-| 37 | 0.936 | 27 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | investment |
-| 3 | 0.991 | 1 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | invoice_redirection |
+| 91 | 0.926 | 72 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | purchase |
+| 79 | 0.942 | 59 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | unclear |
+| 45 | 0.932 | 37 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | advance_fee |
+| 40 | 0.936 | 24 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | impersonation |
+| 37 | 0.937 | 27 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | investment |
+| 5 | 0.967 | 4 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | invoice_redirection |
+| 2 | 0.996 | 1 | databricks-claude-haiku-5-5 |  |  |
 | 1 | 0.976 | 1 | databricks-claude-haiku-5-5 | HOLD_AND_CALL | romance |
 
 ## 15. GenAI: three verbatim case notes
@@ -317,9 +319,9 @@ FROM serverless_stable_my49a8_catalog.northbridge_ml.alert_queue ORDER BY risk_s
 
 | alert_id | amount_gbp | analyst_summary | customer_call_script | reason_codes | recommended_action | reference | suspected_scam_type |
 |---|---|---|---|---|---|---|---|
-| AL-FP26001105668 | 8551.7 | The model score is critical (0.999) for a mobile payment of GBP 8,551.70, which is 2.745 times the customer's 90-day average, to a receiving EMI account only 41 days old that has had just one sender i | Can you talk me through what this payment of £8,551.70 is for?\|Can you tell me how you came to be paying this payee and what you know about them?\|Is there anything you would like us to check or expl | ["Payment made minutes after the payee was created", "High payment value", "No payment history with this payee"] | HOLD_AND_CALL | thanks! | unclear |
-| AL-FP26001124967 | 10384.21 | The receiving account is only 42 days old and sits with an EMI, and it has received just one sender in 7 days, while the reference 'flight' and the payment at 2.58 times the customer's 90-day average  | Can you tell me in your own words what this payment is for, and how you came to pay this person or business?\|Could you walk me through how you found the booking or the bank details you were given?\|I | ["Payment made minutes after the payee was created", "High payment value", "No payment history with this payee"] | HOLD_AND_CALL | flight | purchase |
-| AL-FP26001110725 | 200.38 | The payment is to a payee with a Confirmation of Payee NO_MATCH, no prior payment history, and a receiving account that is only 24 days old at an EMI, with the amount at 2.53 times the customer's 90-d | Can you tell me about the payment you're making today and what it's for?\|How did you come to be paying this person or business, and what contact have you had with them?\|What, if anything, has given  | ["Payment made minutes after the payee was created", "No payment history with this payee", "Receiving account opened very recently"] | HOLD_AND_CALL | sofa | purchase |
+| AL-FP26001105668 | 8551.7 | The £8,551.70 mobile payment is 2.745 times this customer's 90-day average and goes to a payee added about 25 days ago, held at an EMI whose account is only 41 days old, with a vague reference of "tha | Can you talk me through what this payment of £8,551.70 is for?\|How did you come to set up this payee, and what do you know about them?\|What would you like us to know about how this payment came abou | ["Payee added only 25 days ago", "High payment value (GBP 8,552)", "Only 3 previous payment(s) to this payee"] | HOLD_AND_CALL | thanks! | unclear |
+| AL-FP26001124967 | 10384.21 | A GBP 10,384.21 mobile payment with the reference "flight" is 2.582 times this customer's 90-day average and goes to a payee added 26 days ago whose receiving account is only 42 days old at an EMI, wi | Can you tell me in your own words what this payment is for and what you expect to receive in return? \| How did you come to be paying this payee, and how did you first find out about them? \| What ste | ["Payee added only 26 days ago", "High payment value (GBP 10,384)", "Only 4 previous payment(s) to this payee"] | HOLD_AND_CALL | flight | purchase |
+| AL-FP26001110725 | 200.38 | The receiving account is an EMI opened only 24 days ago, the payee was added about 46 hours before this payment, and Confirmation of Payee returned NO_MATCH, which together point to a payee that may n | Can you talk me through what this payment is for and how you came to choose this payee?\|What did you see or receive from the seller or payee, and how did you confirm their identity?\|When the account | ["Payee added only 46 hours ago", "Only 1 previous payment(s) to this payee", "Receiving account opened only 24 days ago"] | HOLD_AND_CALL | sofa | purchase |
 
 ## 16. Semantic layer: metric view query (MEASURE)
 
@@ -368,7 +370,7 @@ SELECT table_name, table_type, comment FROM serverless_stable_my49a8_catalog.inf
 | comment | table_name | table_type |
 |---|---|---|
 |  | __585a1b0c_2cbb_4650_817b_ce7fba453f4e_databricks_postgres_northbridge_ops_alert_queue_6292bae3_a7fe_40c5_905f_191e748ffdb5 | MANAGED |
-| Database table synced from another UC table | alert_queue | FOREIGN |
+|  | alert_queue | FOREIGN |
 | Database table synced from another UC table | customer_payee_history | FOREIGN |
 | Database table synced from another UC table | customer_profile | FOREIGN |
 |  | event_log_2239cd0c_9ec3_44e7_954c_e4adae927f00 | MANAGED |
@@ -386,8 +388,8 @@ FROM serverless_stable_my49a8_catalog.northbridge_ops_history.lb_case_decisions_
 
 | _pg_change_type | amount_protected_gbp | decision | last_change | rows |
 |---|---|---|---|---|
-| insert | 19200.22 | CONFIRMED_SCAM_STOPPED | 2026-11-10T08:28:16.745 | 2 |
-| insert | 47265.26 | REFERRED_TO_POLICE | 2026-11-10T08:28:18.403 | 6 |
+| insert | 28421.71 | CONFIRMED_SCAM_STOPPED | 2026-11-10T08:34:26.676 | 3 |
+| insert | 80146.41 | REFERRED_TO_POLICE | 2026-11-10T08:34:28.395 | 9 |
 
 ## 20. Lakehouse Sync: live payment checks logged by the app
 
@@ -398,8 +400,8 @@ FROM serverless_stable_my49a8_catalog.northbridge_ops_history.lb_payment_checks_
 
 | action | avg_lakebase_lookup_ms | avg_model_serving_ms | checks | risk_band |
 |---|---|---|---|---|
-| HOLD_AND_CALL | 9.7 | 105.3 | 1 | HIGH |
-| RELEASE | 9.3 | 2991.6 | 4 | LOW |
+| HOLD_AND_CALL | 10.7 | 12979.2 | 3 | HIGH |
+| RELEASE | 9.8 | 2028.0 | 6 | LOW |
 
 ## 21. Model Serving: inference table (AI Gateway) request log
 
@@ -410,5 +412,5 @@ FROM serverless_stable_my49a8_catalog.northbridge_ml.scam_risk_serving_payload G
 
 | avg_exec_ms | day | logged | requests |
 |---|---|---|---|
-| 24.0 | 2026-11-10 | true | 10 |
+| 21.4 | 2026-11-10 | true | 19 |
 | 25.6 | 2026-11-09 | true | 10 |

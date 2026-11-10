@@ -14,30 +14,37 @@
 
 ---
 
-## Proof it ran: real outputs, committed as text
-No screenshots: everything here is real output captured from the deployed workspace (`fevm-serverless-stable-my49a8`) and committed to the repo.
+## The customer scenario
+**Industry:** UK retail banking, payments fraud. **Customer:** Northbridge Bank, a fictional UK high-street bank with 2.1M personal current accounts (≈2.6% of the UK market) and ~190M outbound Faster Payments a year. **Problem:** authorised push payment (APP) scams. Customers are tricked into sending money themselves (fake "bank safe account" calls, investment and romance scams, fake sellers), usually to money-mule accounts.
 
-| Evidence | File |
+| | Today at Northbridge | Why it hurts now |
+|---|---|---|
+| Control | A 3-condition rules engine holds payments for analyst review (new payee ≥ £3k, any ≥ £15k, CoP mismatch ≥ £2k) | Most holds are genuine customers: only **{{RULES_PREC}}** of holds are scams, and it misses **{{RULES_MISS}}** of scam value (small purchase and romance scams pass straight through) |
+| Liability | Since **7 Oct 2024** the PSR requires reimbursement up to **£85,000 per claim**, split 50:50 with the receiving bank | Missed scams are now a direct P&L line: ≈**{{NB_LOSSES}}** of customer losses a year at Northbridge's market share (UK total: **£450.7m** in 2024, UK Finance) |
+| Operations | A fixed team of analysts; ~11 minutes per held payment gathering evidence before calling the customer | Capacity, not detection, is the bottleneck; a 4-hour SLA to release or stop |
+| Conduct | FCA Consumer Duty | Must protect vulnerable customers *and* avoid needless friction for everyone else |
+
+**Who buys:** the CRO / COO (executive sponsor: the reimbursement £ line) and the Head of Fraud Operations (domain owner: catch rate, false holds, handling time).
+
+## The value, quantified
+| Annual value to Northbridge (base case) | |
 |---|---|
-| **Executed notebooks with cell outputs embedded** (Jupyter `.ipynb`; GitHub renders each cell's real output). One per job task. | [`notebooks_executed/`](notebooks_executed/) |
-| The same executed notebooks as Markdown (code → output), plus each notebook's logged exit value | [`evidence/job_run/*.md`](evidence/job_run/) |
-| Lakeflow Job run log: task states, attempts, durations (+ raw run JSON) | [`evidence/job_run/run_summary.md`](evidence/job_run/run_summary.md), [`run_log.json`](evidence/job_run/run_log.json) |
-| Lakeflow pipeline run log from the event log: per-flow rows written, AUTO CDC upserts, expectation pass/fail, chronological events | [`evidence/pipeline_event_log.md`](evidence/pipeline_event_log.md) |
-| 21 live SQL checks: medallion row counts, DQ expectation metrics, quarantine, masks, tags, lineage, grants, model evaluation, GenAI notes, metric view, business case, Lakebase synced tables, Lakehouse Sync history, inference table | [`evidence/platform_queries.md`](evidence/platform_queries.md) |
-| Genie Agent transcripts: questions → generated SQL → rows, incl. a follow-up | [`evidence/genie_transcripts.md`](evidence/genie_transcripts.md) |
-| Deployed app exercised end-to-end: API responses for outcome, queue, decision write, live payment check (latency), GenAI draft, Genie | [`evidence/app_session.md`](evidence/app_session.md) |
-| Incremental run: next business day lands, Auto Loader ingests only the new file | [`evidence/incremental_run.md`](evidence/incremental_run.md) |
-| Headline numbers used in the deck (machine-generated from the run) | [`evidence/headline_numbers.json`](evidence/headline_numbers.json) |
+| Customer losses prevented | **{{CUST_PREVENTED}}** |
+| Net reimbursement cost avoided (after 88% reimbursed × 50% receiving-bank share) | **{{NET_SAVING}}** |
+| Analyst capacity released (GenAI case notes: 11 → 7 min per hold) | **{{ANALYST_HOURS}} hours ≈ {{ANALYST_VALUE}}** |
+| Platform run cost | −{{RUN_COST}} |
+| **Net annual value** | **{{NET_VALUE}}** (ROI ≈ {{ROI}}×, payback ≈ {{PAYBACK}} months) |
 
-> The `.py` files in `src/notebooks/` are the *source* deployed by the bundle; their executed versions with outputs are in [`notebooks_executed/`](notebooks_executed/).
+**How robust is that?** The model uplift is held at its measured value; only the unvalidated assumptions move:
 
-### Excerpts (verbatim from the files above)
+{{SENS_TABLE}}
 
-{{PROOF}}
+Even the conservative case pays back. All figures are computed in the job ([`07_semantic_layer_and_business_case`](notebooks_executed/08_semantic_layer_business_case.ipynb)) and stored in `northbridge_ml.business_case` / `business_case_sensitivity`.
 
 ---
 
-## The integrated journey
+## The integrated journey: one payment, every stage
+Not six demos stitched together: **one Lakeflow Job DAG** moves the same records through every stage, and the app writes back into the same governed estate.
 
 ```
 Raw synthetic files ─▶ LAKEFLOW ─▶ UNITY CATALOG ─▶ ML + GenAI ─▶ LAKEBASE ─▶ DATABRICKS APP   (+ GENIE AGENT)
@@ -50,16 +57,44 @@ Raw synthetic files ─▶ LAKEFLOW ─▶ UNITY CATALOG ─▶ ML + GenAI ─�
                                           UC history ─▶ Genie + retraining labels (feedback loop)
 ```
 
+**Follow one real payment** ([`evidence/trace_one_payment.md`](evidence/trace_one_payment.md), every hop proven with a query):
+
+{{TRACE_TABLE}}
+
 | Stage | Requirement | What was built | Where |
 |---|---|---|---|
-| 1 | **Lakeflow**: ingest raw data | Synthetic generator lands 89 daily JSON files + claims CSVs in a UC Volume. A **Lakeflow Spark Declarative Pipeline** (serverless) does Auto Loader bronze, 7 expectations, a quarantine table, **AUTO CDC** de-dup, masked silver and point-in-time gold features. A **Lakeflow Job** orchestrates all 9 stages. | `src/notebooks/01_generate_raw_data.py`, `src/pipeline/transformations/*.sql`, `resources/journey.job.yml` |
+| 1 | **Lakeflow**: ingest raw data | Synthetic generator lands 90 daily JSON files + claims CSVs in a UC Volume. A **Lakeflow Spark Declarative Pipeline** (serverless) does Auto Loader bronze, 7 expectations, a quarantine table, **AUTO CDC** de-dup, masked silver and point-in-time gold features. A **Lakeflow Job** orchestrates all 9 stages. | `src/notebooks/01_generate_raw_data.py`, `src/pipeline/transformations/*.sql`, `resources/journey.job.yml` |
 | 2 | **Unity Catalog**: govern it | 5 bundle-managed schemas with grants. **Column masks** on names, DOB, email, phone, postcode, sort code and account number (only `northbridge-pii-readers` see clear text). **Governed tags** (`class.*`, `data_classification`, `system.certification_status`). Lineage, a **metric view**, the UC-registered model, inference tables. | `src/notebooks/00_*`, `02_*`, `resources/unity_catalog.yml`, `07_*` |
 | 3 | **Lakebase**: operational serving | Lakebase Autoscaling project (PG17). **Synced tables**: alert queue (TRIGGERED), customer/payee/relationship profiles (SNAPSHOT). App-owned OLTP tables (decisions, status, live checks). **Lakehouse Sync** streams decisions back to UC. | `resources/lakebase.yml`, `src/notebooks/05_publish_to_lakebase.py` |
-| 4 | **ML / GenAI**: make it intelligent | Value-weighted **LightGBM** benchmarked against the rules at equal alert budget, a pyfunc with reason codes, registered in UC as `@champion`, served on **Model Serving**. **`ai_query` + Claude Haiku** writes case notes and call scripts in batch; **Claude Sonnet** drafts customer messages and the live "pause and check" warning in the app. | `03_*`, `04_*`, `06_*`, `src/app/backend.py` |
+| 4 | **ML / GenAI**: make it intelligent | Value-weighted **LightGBM** benchmarked against the rules at equal alert budget, a pyfunc with value-aware reason codes, registered in UC as `@champion`, served on **Model Serving**. **`ai_query` + Claude Haiku** writes case notes and call scripts in batch; **Claude Sonnet** drafts customer messages and the live "pause and check" warning in the app. | `03_*`, `04_*`, `06_*`, `src/app/backend.py` |
 | 5 | **Genie Agent**: natural language | "Northbridge APP Scam Analyst", **deployed as code**: curated tables + metric view, business instructions (PSR rules), join specs, example SQL, measures, 8 benchmarks, PII columns excluded. | `src/genie/build_genie_space.py`, `resources/genie.yml` |
 | 6 | **Databricks App**: surface it | FastAPI app on its own service principal with four views: **Outcome** (warehouse), **Analyst queue** (Lakebase r/w + GenAI), **Live payment check** (Lakebase → Serving → GenAI), **Ask Genie** (Conversation API). | `src/app/`, `resources/app.yml` |
 
 Detail: [`docs/architecture.md`](docs/architecture.md) · How to deploy: [`docs/how-to-run.md`](docs/how-to-run.md)
+
+---
+
+## Proof it ran: real outputs, committed as text
+No screenshots: everything here is real output captured from the deployed workspace (`fevm-serverless-stable-my49a8`) and committed to the repo.
+
+| Evidence | File |
+|---|---|
+| **Executed notebooks with cell outputs embedded** (Jupyter `.ipynb`; GitHub renders each cell's real output). One per job task. | [`notebooks_executed/`](notebooks_executed/) |
+| The same executed notebooks as Markdown (code → output), plus each notebook's logged exit value | [`evidence/job_run/*.md`](evidence/job_run/) |
+| Lakeflow Job run log: task states, attempts, durations (+ raw run JSON) | [`evidence/job_run/run_summary.md`](evidence/job_run/run_summary.md), [`run_log.json`](evidence/job_run/run_log.json) |
+| Lakeflow pipeline run log from the event log: per-flow rows written, AUTO CDC upserts, expectation pass/fail, chronological events | [`evidence/pipeline_event_log.md`](evidence/pipeline_event_log.md) |
+| 21 live SQL checks: medallion row counts, DQ expectation metrics, quarantine, masks, tags, lineage, grants, model evaluation, GenAI notes, metric view, business case, Lakebase synced tables, Lakehouse Sync history, inference table | [`evidence/platform_queries.md`](evidence/platform_queries.md) |
+| Genie Agent transcripts: questions → generated SQL → rows, incl. a follow-up | [`evidence/genie_transcripts.md`](evidence/genie_transcripts.md) |
+| Deployed app exercised end-to-end: API responses for outcome, queue, decision write, live payment check (latency), GenAI draft, Genie | [`evidence/app_session.md`](evidence/app_session.md) |
+| **One payment traced through every stage** (raw JSON → … → app decision → Lakehouse Sync → Genie) | [`evidence/trace_one_payment.md`](evidence/trace_one_payment.md) |
+| Incremental run: next business day lands, Auto Loader ingests only the new file | [`evidence/incremental_run.md`](evidence/incremental_run.md) |
+| Headline numbers used in the deck (machine-generated from the run) | [`evidence/headline_numbers.json`](evidence/headline_numbers.json) |
+
+> The `.py` files in `src/notebooks/` are the *source* deployed by the bundle; their executed versions with outputs are in [`notebooks_executed/`](notebooks_executed/).
+
+### Excerpts (verbatim from the files above)
+
+{{PROOF}}
 
 ---
 
@@ -79,7 +114,7 @@ PR-AUC {{PR_AUC}} · ROC-AUC {{ROC_AUC}}. Honest caveat: the data is synthetic a
 ---
 
 ## Decisions and trade-offs
-The top five are below; the full table of 18 is in [`docs/decisions-and-tradeoffs.md`](docs/decisions-and-tradeoffs.md).
+The top five are below; the full table of 20 is in [`docs/decisions-and-tradeoffs.md`](docs/decisions-and-tradeoffs.md).
 1. **Compare at the same alert budget, not AUC.** The fraud team's capacity is fixed, so "more £ caught with the same team?" is the buyer's question.
 2. **Lakebase for the app, the warehouse for analytics.** Single-row reads and transactional writes (decision + status in one commit) vs scans. Synced tables and Lakehouse Sync remove ETL in both directions.
 3. **Masks in UC, applied in the pipeline DDL.** PII protection travels to Genie, the LLM, the app SP and Lakebase. Features are derived from PII *inside* the governed pipeline.
@@ -87,7 +122,20 @@ The top five are below; the full table of 18 is in [`docs/decisions-and-tradeoff
 5. **Feature parity by code (prototype) → online feature serving (production).** This is the explicit, known skew risk.
 
 ## AI as a force multiplier
-Built with **Claude Code** plus the Databricks Agent Skills. Covered in [`docs/ai-assisted-build.md`](docs/ai-assisted-build.md): skills-first, probing the workspace before designing, verifying industry facts on the web, local smoke tests before cloud runs, diagnosing from real errors (14 real failures and their fixes are listed), and evidence as a first-class deliverable.
+Built by **one human + Claude Code** (CLI coding agent) with the **Databricks Agent Skills**, from a one-paragraph brief to this deployed product in about 10 hours. Session ID `4d352f7c-9cb4-43ed-b074-1199d99dc2b1`. [`docs/ai-assisted-build.md`](docs/ai-assisted-build.md) documents:
+* **Tools:** Claude Code, the Databricks CLI (OAuth), Agent Skills loaded before coding, web search for industry facts, background job monitors, the GitHub CLI.
+* **Prompts:** your brief verbatim; the three production GenAI prompts and the Genie instructions verbatim; the engineering prompts that shaped the build (e.g. *"this result is too good to be credible; find the giveaway features"*).
+* **Patterns:** skills-first and probe-then-design; deploy → read the real error → fix → *repair only the failed task*; Genie-as-code; one model artefact for batch, real-time and GenAI; docs rendered from measured numbers; executed-notebook exporters; a one-record trace.
+* **16 real failures diagnosed and fixed**, from rejecting a "perfect" 0.9995-AUC model to catching contradictory reason codes with the one-payment trace.
+* **What the human owned:** the problem choice, credibility calls, consent decisions, the narrative.
+
+## Roleplay readiness
+[`docs/demo-script.md`](docs/demo-script.md) is a rehearsal kit:
+* both personas (Head of Fraud Ops / CRO and Head of Fraud Engineering) and what each needs to hear;
+* 3 opening discovery questions;
+* a **60-second** version, and a **12-minute tell → show → tell** with time-boxed beats, exact click path and talk track;
+* **18 objection cards**, each with a ≤20-second answer and the proof to point at;
+* a fallback plan if anything breaks live, and a 4-pass rehearsal drill.
 
 ## Repository map
 ```

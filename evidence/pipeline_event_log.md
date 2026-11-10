@@ -1,6 +1,6 @@
 # Lakeflow pipeline run log: `northbridge-app-fraud-medallion`
 
-Pipeline id `f05e573a-38cd-421c-85d2-ccbd15b5cb2a` · serverless · Photon · catalog `serverless_stable_my49a8_catalog`, schema `northbridge_fraud` · exported 2026-11-10 08:50 UTC from the pipeline **event log** (`event_log('f05e573a-38cd-421c-85d2-ccbd15b5cb2a')`, queried on SQL warehouse `1035b8c40230fe40`) by `scripts/export_pipeline_log.py`.
+Pipeline id `f05e573a-38cd-421c-85d2-ccbd15b5cb2a` · serverless · Photon · catalog `serverless_stable_my49a8_catalog`, schema `northbridge_fraud` · exported 2026-11-10 09:22 UTC from the pipeline **event log** (`event_log('f05e573a-38cd-421c-85d2-ccbd15b5cb2a')`, queried on SQL warehouse `1035b8c40230fe40`) by `scripts/export_pipeline_log.py`.
 
 ## All pipeline updates
 
@@ -10,8 +10,9 @@ Pipeline id `f05e573a-38cd-421c-85d2-ccbd15b5cb2a` · serverless · Photon · ca
 | JOB_TASK | COMPLETED | 2026-11-09T23:14:45.025Z | false | 2026-11-09T23:14:05.097Z | eea7d666-965c-42c8-93b8-68af20ead3c4 |
 | JOB_TASK | COMPLETED | 2026-11-09T23:31:12.296Z | true | 2026-11-09T23:29:38.512Z | 1019bcf1-afa0-46f3-9059-da563c893001 |
 | JOB_TASK | COMPLETED | 2026-11-10T00:25:01.857Z | false | 2026-11-10T00:23:33.064Z | 958c7547-7fff-41b2-a49b-d8f9c36646c6 |
+| JOB_TASK | COMPLETED | 2026-11-10T09:04:27.478Z | false | 2026-11-10T09:03:36.392Z | f4b83762-3216-4414-8c4b-2478218fa083 |
 
-The second-to-last update is the **full refresh** (initial load of 89 days); the last is the **incremental** update triggered by the job for business day 2026-11-08.
+Detailed below: the latest **full refresh** (initial load of 89 days) and the **incremental** update that followed it (business day 2026-11-08 arriving). Later updates are job re-runs with no new files (Auto Loader reads nothing new).
 
 ## Update `1019bcf1-afa0-46f3-9059-da563c893001` · COMPLETED · full_refresh=true · 2026-11-09T23:29:38.512Z → 2026-11-09T23:31:12.296Z
 

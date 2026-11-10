@@ -42,7 +42,8 @@ def main():
              max(CAST(details:create_update.full_refresh AS BOOLEAN)) AS full_refresh,
              max(details:create_update.cause) AS cause
       FROM {ev} WHERE origin.update_id IS NOT NULL GROUP BY 1 ORDER BY started""", a)
-    last_two = [u["update_id"] for u in updates[-2:]]
+    fr = max((i for i, u in enumerate(updates) if str(u.get("full_refresh")).lower() == "true"), default=len(updates) - 2)
+    last_two = [updates[fr]["update_id"]] + ([updates[fr + 1]["update_id"]] if fr + 1 < len(updates) else [])
     sections = []
     for uid in last_two:
         flows = q(f"""
@@ -78,7 +79,8 @@ def main():
            f"Pipeline id `{pid}` · serverless · Photon · catalog `serverless_stable_my49a8_catalog`, schema `northbridge_fraud` · exported {now} from the pipeline **event log** "
            f"(`event_log('{pid}')`, queried on SQL warehouse `{a.warehouse}`) by `scripts/export_pipeline_log.py`.", "",
            "## All pipeline updates", "", md(updates), "",
-           "The second-to-last update is the **full refresh** (initial load of 89 days); the last is the **incremental** update triggered by the job for business day 2026-11-08.", ""]
+           "Detailed below: the latest **full refresh** (initial load of 89 days) and the **incremental** update that followed it (business day 2026-11-08 arriving). "
+           "Later updates are job re-runs with no new files (Auto Loader reads nothing new).", ""]
     pathlib.Path(a.out).write_text("\n".join(out + sections))
     print("wrote", a.out, "updates:", len(updates))
 

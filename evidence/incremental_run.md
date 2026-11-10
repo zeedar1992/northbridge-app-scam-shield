@@ -1,7 +1,7 @@
 # Incremental run: the next business day arrives
 
 **Scenario:** the payments hub drops `payments_2026-11-08.json` (and the day's claims file). The same Lakeflow Job is re-run with
-`databricks bundle run northbridge_journey --params through_date=2026-11-08` (job run **590537578235560**, all tasks SUCCESS, see [`job_run/run_summary.md`](job_run/run_summary.md)).
+`databricks bundle run northbridge_journey --params through_date=2026-11-08` (job run **590537578235560**, all tasks SUCCESS, see [`job_run_incremental/run_summary.md`](job_run_incremental/run_summary.md)).
 
 ## Before (end of the full-refresh run 121437029937396)
 ```json

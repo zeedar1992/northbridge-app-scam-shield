@@ -1,6 +1,6 @@
 # Task `uc_governance_setup` · notebook `00_governance_setup` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `uc_governance_setup` · task run 225137203621598 · result SUCCESS · 2026-11-10 00:22:10 UTC → 2026-11-10 00:22:41 UTC · source `src/notebooks/00_governance_setup.py`
+Executed by Lakeflow Job run 886593886805341 · task `uc_governance_setup` · task run 291118273447486 · result SUCCESS · 2026-11-10 09:02:09 UTC → 2026-11-10 09:02:38 UTC · source `src/notebooks/00_governance_setup.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 

@@ -1,5 +1,5 @@
 {
-  "run_id": 590537578235560,
+  "run_id": 886593886805341,
   "run_name": "northbridge-app-scam-shield-journey",
   "state": {
     "life_cycle_state": "TERMINATED",
@@ -7,9 +7,9 @@
     "state_message": "",
     "user_cancelled_or_timedout": false
   },
-  "start_time": 1794270130224,
-  "end_time": 1794300471606,
-  "run_page_url": "https://fevm-serverless-stable-my49a8.cloud.databricks.com/?o=7474652570256692#job/982865610976081/run/590537578235560",
+  "start_time": 1794301329248,
+  "end_time": 1794302242768,
+  "run_page_url": "https://fevm-serverless-stable-my49a8.cloud.databricks.com/?o=7474652570256692#job/982865610976081/run/886593886805341",
   "job_parameters": [
     {
       "default": "serverless_stable_my49a8_catalog",
@@ -25,7 +25,7 @@
   "tasks": [
     {
       "task_key": "semantic_layer_business_case",
-      "run_id": 371704668802180,
+      "run_id": 816349799366870,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -33,33 +33,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270790565,
-      "end_time": 1794270807064,
-      "execution_duration": 14000,
-      "notebook_task": {
-        "base_parameters": {
-          "catalog": "{{job.parameters.catalog}}",
-          "fraud_schema": "northbridge_fraud",
-          "ml_schema": "northbridge_ml"
-        },
-        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/07_semantic_layer_and_business_case",
-        "source": "WORKSPACE"
-      },
-      "pipeline_task": null
-    },
-    {
-      "task_key": "semantic_layer_business_case",
-      "run_id": 477017422827782,
-      "attempt_number": 1,
-      "state": {
-        "life_cycle_state": "TERMINATED",
-        "result_state": "SUCCESS",
-        "state_message": "",
-        "user_cancelled_or_timedout": false
-      },
-      "start_time": 1794298973673,
-      "end_time": 1794299003793,
-      "execution_duration": 27000,
+      "start_time": 1794302025544,
+      "end_time": 1794302058175,
+      "execution_duration": 30000,
       "notebook_task": {
         "base_parameters": {
           "catalog": "{{job.parameters.catalog}}",
@@ -73,7 +49,7 @@
     },
     {
       "task_key": "lakeflow_medallion_pipeline",
-      "run_id": 939281346104386,
+      "run_id": 261527030880964,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -81,9 +57,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270211386,
-      "end_time": 1794270304060,
-      "execution_duration": 92000,
+      "start_time": 1794301414676,
+      "end_time": 1794301477124,
+      "execution_duration": 62000,
       "notebook_task": null,
       "pipeline_task": {
         "full_refresh": false,
@@ -92,7 +68,7 @@
     },
     {
       "task_key": "deploy_model_serving",
-      "run_id": 518133764689075,
+      "run_id": 863852793987238,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -100,9 +76,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270477457,
-      "end_time": 1794271127442,
-      "execution_duration": 647000,
+      "start_time": 1794301652360,
+      "end_time": 1794302242386,
+      "execution_duration": 587000,
       "notebook_task": {
         "base_parameters": {
           "app_name": "northbridge-scam-shield",
@@ -117,7 +93,7 @@
     },
     {
       "task_key": "score_and_genai_enrich",
-      "run_id": 111047790233868,
+      "run_id": 674088591902543,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -125,35 +101,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270477535,
-      "end_time": 1794270790241,
-      "execution_duration": 310000,
-      "notebook_task": {
-        "base_parameters": {
-          "batch_llm_endpoint": "databricks-claude-haiku-5-5",
-          "catalog": "{{job.parameters.catalog}}",
-          "fraud_schema": "northbridge_fraud",
-          "max_genai_alerts": "300",
-          "ml_schema": "northbridge_ml"
-        },
-        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/04_score_and_genai_enrich",
-        "source": "WORKSPACE"
-      },
-      "pipeline_task": null
-    },
-    {
-      "task_key": "score_and_genai_enrich",
-      "run_id": 302508417748477,
-      "attempt_number": 1,
-      "state": {
-        "life_cycle_state": "TERMINATED",
-        "result_state": "SUCCESS",
-        "state_message": "",
-        "user_cancelled_or_timedout": false
-      },
-      "start_time": 1794298617446,
-      "end_time": 1794298973246,
-      "execution_duration": 351000,
+      "start_time": 1794301652429,
+      "end_time": 1794302025167,
+      "execution_duration": 370000,
       "notebook_task": {
         "base_parameters": {
           "batch_llm_endpoint": "databricks-claude-haiku-5-5",
@@ -169,7 +119,7 @@
     },
     {
       "task_key": "uc_tags_lineage_audit",
-      "run_id": 493688955409281,
+      "run_id": 475611867566209,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -177,9 +127,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270304424,
-      "end_time": 1794270356994,
-      "execution_duration": 49000,
+      "start_time": 1794301477391,
+      "end_time": 1794301524576,
+      "execution_duration": 44000,
       "notebook_task": {
         "base_parameters": {
           "catalog": "{{job.parameters.catalog}}",
@@ -192,7 +142,7 @@
     },
     {
       "task_key": "publish_to_lakebase",
-      "run_id": 319271002139431,
+      "run_id": 3172300787329,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -200,63 +150,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270790505,
-      "end_time": 1794270826791,
-      "execution_duration": 34000,
-      "notebook_task": {
-        "base_parameters": {
-          "app_name": "northbridge-scam-shield",
-          "catalog": "{{job.parameters.catalog}}",
-          "lakebase_project": "northbridge-scam-ops",
-          "ml_schema": "northbridge_ml",
-          "ops_history_schema": "northbridge_ops_history",
-          "ops_schema": "northbridge_ops"
-        },
-        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/05_publish_to_lakebase",
-        "source": "WORKSPACE"
-      },
-      "pipeline_task": null
-    },
-    {
-      "task_key": "publish_to_lakebase",
-      "run_id": 818180431527637,
-      "attempt_number": 1,
-      "state": {
-        "life_cycle_state": "TERMINATED",
-        "result_state": "SUCCESS",
-        "state_message": "",
-        "user_cancelled_or_timedout": false
-      },
-      "start_time": 1794298973603,
-      "end_time": 1794299014024,
-      "execution_duration": 37000,
-      "notebook_task": {
-        "base_parameters": {
-          "app_name": "northbridge-scam-shield",
-          "catalog": "{{job.parameters.catalog}}",
-          "lakebase_project": "northbridge-scam-ops",
-          "ml_schema": "northbridge_ml",
-          "ops_history_schema": "northbridge_ops_history",
-          "ops_schema": "northbridge_ops"
-        },
-        "notebook_path": "/Workspace/Users/zeeshan.dar@databricks.com/.bundle/northbridge-app-scam-shield/fevm/files/src/notebooks/05_publish_to_lakebase",
-        "source": "WORKSPACE"
-      },
-      "pipeline_task": null
-    },
-    {
-      "task_key": "publish_to_lakebase",
-      "run_id": 471860505283008,
-      "attempt_number": 2,
-      "state": {
-        "life_cycle_state": "TERMINATED",
-        "result_state": "SUCCESS",
-        "state_message": "",
-        "user_cancelled_or_timedout": false
-      },
-      "start_time": 1794300404319,
-      "end_time": 1794300471236,
-      "execution_duration": 62000,
+      "start_time": 1794302025474,
+      "end_time": 1794302072457,
+      "execution_duration": 44000,
       "notebook_task": {
         "base_parameters": {
           "app_name": "northbridge-scam-shield",
@@ -273,7 +169,7 @@
     },
     {
       "task_key": "train_scam_model",
-      "run_id": 514710607757359,
+      "run_id": 138328630391401,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -281,9 +177,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270304335,
-      "end_time": 1794270477133,
-      "execution_duration": 169000,
+      "start_time": 1794301477328,
+      "end_time": 1794301652085,
+      "execution_duration": 171000,
       "notebook_task": {
         "base_parameters": {
           "catalog": "{{job.parameters.catalog}}",
@@ -297,7 +193,7 @@
     },
     {
       "task_key": "uc_governance_setup",
-      "run_id": 225137203621598,
+      "run_id": 291118273447486,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -305,9 +201,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270130257,
-      "end_time": 1794270161373,
-      "execution_duration": 27000,
+      "start_time": 1794301329286,
+      "end_time": 1794301358560,
+      "execution_duration": 26000,
       "notebook_task": {
         "base_parameters": {
           "catalog": "{{job.parameters.catalog}}",
@@ -321,7 +217,7 @@
     },
     {
       "task_key": "land_raw_files",
-      "run_id": 1083923923384494,
+      "run_id": 247833414817654,
       "attempt_number": 0,
       "state": {
         "life_cycle_state": "TERMINATED",
@@ -329,9 +225,9 @@
         "state_message": "",
         "user_cancelled_or_timedout": false
       },
-      "start_time": 1794270161784,
-      "end_time": 1794270211063,
-      "execution_duration": 47000,
+      "start_time": 1794301358886,
+      "end_time": 1794301414366,
+      "execution_duration": 53000,
       "notebook_task": {
         "base_parameters": {
           "catalog": "{{job.parameters.catalog}}",

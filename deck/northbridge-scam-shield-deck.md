@@ -2,7 +2,7 @@
 
 **Northbridge Bank · Fraud Strategy & Operations · Proposal to the Executive Committee**
 
-* **£2.7m net annual value**, mostly from APP-scam reimbursement cost Northbridge stops paying
+* **£2.7m net annual value** (range £1.0m to £4.1m), mostly from APP-scam reimbursement cost Northbridge stops paying
 * **94% of scam value intercepted** with the *same* number of payment holds (today: 58%)
 * **13.7 → 2.2 genuine customers held per scam caught**: fewer good customers blocked
 * **29,200 analyst hours released per year** through GenAI case notes and call scripts
@@ -45,7 +45,7 @@
 | Genuine customers held per scam | 13.7 | **2.2** | less friction |
 | Holds needed to match today's catch | 1,533 | **168** | **−89%** |
 
-PR-AUC 0.609 · ROC-AUC 0.996 · LightGBM · value-weighted · time-based split · model v4 in Unity Catalog (`@champion`)
+PR-AUC 0.609 · ROC-AUC 0.996 · LightGBM · value-weighted · time-based split · model v5 in Unity Catalog (`@champion`)
 
 | Scam type | Scam payments | Scam value | Rules value recall | Model value recall |
 |---|---|---|---|---|
@@ -75,6 +75,14 @@ PR-AUC 0.609 · ROC-AUC 0.996 · LightGBM · value-weighted · time-based split 
 | Platform run cost (per year) | £-180,000 | Estimate: serverless pipeline + Lakebase + serving + FMAPI + app |
 | **Net annual value to Northbridge** | £2.7m | net reimbursement avoided + analyst capacity - run cost |
 
+**Sensitivity:** model uplift held at its measured value; only the unvalidated assumptions move.
+
+| Scenario | UK PCA share | Intervention success | Minutes saved / case | Run cost | Customer losses prevented | **Net annual value** | ROI |
+|---|---|---|---|---|---|---|---|
+| Conservative | 2.0% | 40% | 2 | £300,000 | £1.7m | **£1.0m** | 4x |
+| Base (headline) | 2.6% | 60% | 4 | £180,000 | £3.9m | **£2.7m** | 16x |
+| Upside | 3.0% | 75% | 5 | £150,000 | £6.5m | **£4.1m** | 28x |
+
 **ROI ≈ 16× run cost · payback ≈ 0.8 months.** Assumptions marked as assumptions are validated in the pilot; measured figures come from the hold-out test.
 
 ---
@@ -95,6 +103,8 @@ Raw files ──▶ Lakeflow pipeline ──▶ Unity Catalog ──▶ ML + Gen
 * **Lakebase**: millisecond lookups + transactional analyst decisions; decisions stream back to the lakehouse automatically
 * **Genie**: the Head of Fraud asks questions in plain English over the same governed data
 * **One bundle, one job**: reproducible, promotable to production
+
+**Proof it's one journey:** payment `FP26001105668` (£8,552 to a 41-day-old EMI account) was *not* flagged by the legacy rules. The model scored it **CRITICAL 0.999**, Claude wrote the case note, an analyst stopped it in the app, and the decision flowed back into Unity Catalog seconds later. Every hop is shown with a query in `evidence/trace_one_payment.md`.
 
 ---
 

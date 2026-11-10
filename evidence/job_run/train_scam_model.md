@@ -1,6 +1,6 @@
 # Task `train_scam_model` · notebook `03_train_scam_model` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `train_scam_model` · task run 514710607757359 · result SUCCESS · 2026-11-10 00:25:04 UTC → 2026-11-10 00:27:57 UTC · source `src/notebooks/03_train_scam_model.py`
+Executed by Lakeflow Job run 886593886805341 · task `train_scam_model` · task run 138328630391401 · result SUCCESS · 2026-11-10 09:04:37 UTC → 2026-11-10 09:07:32 UTC · source `src/notebooks/03_train_scam_model.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -196,7 +196,7 @@ display(imp.head(15))
 **Output:**
 
 ```text
-/home/spark-3eecc3cb-a9af-41dc-829d-11/.ipykernel/67/command-6167788339816578-3225289582:2: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+/home/spark-e8532606-426f-445d-9592-7b/.ipykernel/64/command-8750878095696056-3225289582:2: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
   .apply(lambda g: pd.Series({"scam_payments": len(g), "scam_value_gbp": round(g.amount_gbp.sum(), 0),
 ```
 
@@ -277,6 +277,45 @@ class ScamRiskModel(mlflow.pyfunc.PythonModel):
             X[c] = pd.Categorical(s.where(s.notna(), None), categories=m["categories"][c])
         return X[m["features"]]
 
+    def _reason(self, f, v):
+        """Value-aware, human-readable reason code (the text must agree with the actual feature value)."""
+        import math
+        txt = self.meta["reason_text"].get(f, f)
+        try:
+            missing = v is None or (isinstance(v, float) and math.isnan(v))
+        except Exception:
+            missing = False
+        if missing:
+            return {"payee_account_age_days": "No inter-bank intelligence on the receiving account's age"}.get(f, txt)
+        if f == "minutes_since_payee_added":
+            return (f"Payment made {v:.0f} minutes after the payee was created" if v < 120 else
+                    f"Payee added only {v / 60:.0f} hours ago" if v < 2880 else f"Payee added only {v / 1440:.0f} days ago")
+        if f == "prior_payments_to_payee":
+            return "No payment history with this payee" if v == 0 else f"Only {v:.0f} previous payment(s) to this payee"
+        if f == "payee_account_age_days":
+            return f"Receiving account opened only {v:.0f} days ago" if v < 365 else f"Receiving account age ({v:.0f} days)"
+        if f == "amount_gbp":
+            return f"High payment value (GBP {v:,.0f})"
+        if f == "amount_to_cust_avg_ratio":
+            return f"Amount is {v:.1f}x this customer's 90-day average"
+        if f == "payee_distinct_senders_7d":
+            return f"Receiving account paid by {v:.0f} different Northbridge customers in 7 days" + (" (mule pattern)" if v >= 3 else "")
+        if f == "is_new_payee":
+            return "Payee added within the last 24 hours" if v else txt
+        if f == "on_active_call":
+            return txt if v else "Session behaviour (no active phone call)"
+        if f == "cop_result":
+            return f"Confirmation of Payee result: {v}"
+        if f == "payee_bank_type":
+            return f"Receiving PSP type {v} is over-represented in mule activity"
+        if f == "reference_risk_keyword":
+            return txt if v else "Payment reference (no scam keywords; may be coached)"
+        if f == "session_duration_sec":
+            return f"Banking session of {v / 60:.1f} minutes"
+        if f == "age_years":
+            return f"Customer age ({v:.0f}) profile targeted by this scam type"
+        return txt
+
     def predict(self, context, model_input, params=None):
         import numpy as np, pandas as pd, json
         m = self.meta
@@ -290,7 +329,7 @@ class ScamRiskModel(mlflow.pyfunc.PythonModel):
             contrib = self.booster.predict(X.iloc[idx], pred_contrib=True)[:, :-1]
             top = np.argsort(-contrib, axis=1)[:, :3]
             for k, i in enumerate(idx):
-                reasons[i] = json.dumps([m["reason_text"].get(feats[j], feats[j]) for j in top[k] if contrib[k, j] > 0])
+                reasons[i] = json.dumps([self._reason(feats[j], X.iloc[i][feats[j]]) for j in top[k] if contrib[k, j] > 0])
         band = np.where(score >= m["critical_threshold"], "CRITICAL", np.where(score >= m["alert_threshold"], "HIGH",
                         np.where(score >= m["alert_threshold"] / 4, "MEDIUM", "LOW")))
         return pd.DataFrame({"risk_score": np.round(score, 6), "risk_band": band, "reason_codes": reasons})
@@ -340,7 +379,7 @@ print(f"registered {MODEL_NAME} v{version} @champion  run_id={run_id}")
 **Output:**
 
 ```text
-/local_disk0/.ephemeral_nfs/envs/pythonEnv-3eecc3cb-a9af-41dc-829d-111da2d102fd/lib/python3.12/site-packages/mlflow/pyfunc/utils/data_validation.py:186: UserWarning: Add type hints to the `predict` method to enable data validation and automatic signature inference during model logging. Check https://mlflow.org/docs/latest/model/python_model.html#type-hint-usage-in-pythonmodel for more details.
+/local_disk0/.ephemeral_nfs/envs/pythonEnv-e8532606-426f-445d-9592-7bdcb86274b2/lib/python3.12/site-packages/mlflow/pyfunc/utils/data_validation.py:186: UserWarning: Add type hints to the `predict` method to enable data validation and automatic signature inference during model logging. Check https://mlflow.org/docs/latest/model/python_model.html#type-hint-usage-in-pythonmodel for more details.
   color_warning(
 ```
 
@@ -353,8 +392,8 @@ print(f"registered {MODEL_NAME} v{version} @champion  run_id={run_id}")
 | 1.5e-05 | LOW | [] |
 
 ```text
-🔗 View Logged Model at: https://fevm-serverless-stable-my49a8.cloud.databricks.com/ml/experiments/3738237562592958/models/m-3521d7b3ae534d6f9453ab1259a9079d?o=7474652570256692
-2026/11/10 00:27:39 INFO mlflow.pyfunc: Validating input example against model signature
+🔗 View Logged Model at: https://fevm-serverless-stable-my49a8.cloud.databricks.com/ml/experiments/3738237562592958/models/m-ddfe393873174cb19ba93ade0a55a370?o=7474652570256692
+2026/11/10 09:07:14 INFO mlflow.pyfunc: Validating input example against model signature
 ```
 
 ```text
@@ -362,11 +401,11 @@ Registered model 'serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_
 ```
 
 ```text
-🔗 Created version '4' of model 'serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model': https://fevm-serverless-stable-my49a8.cloud.databricks.com/explore/data/models/serverless_stable_my49a8_catalog/northbridge_ml/app_scam_risk_model/version/4?o=7474652570256692
+🔗 Created version '5' of model 'serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model': https://fevm-serverless-stable-my49a8.cloud.databricks.com/explore/data/models/serverless_stable_my49a8_catalog/northbridge_ml/app_scam_risk_model/version/5?o=7474652570256692
 ```
 
 ```text
-registered serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model v4 @champion  run_id=1e96aa9978884679af31a03c7488971e
+registered serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model v5 @champion  run_id=e97d27298289469bbb366ef0025389af
 ```
 
 ```python
@@ -412,7 +451,7 @@ dbutils.notebook.exit(json.dumps({**summary, "model_version": int(version), "run
   "value_uplift_same_budget_pct_points": 36.2,
   "alert_threshold": 0.084573,
   "critical_threshold": 0.993514,
-  "model_version": 4,
-  "run_id": "1e96aa9978884679af31a03c7488971e"
+  "model_version": 5,
+  "run_id": "e97d27298289469bbb366ef0025389af"
 }
 ```

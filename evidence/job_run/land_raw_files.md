@@ -1,6 +1,6 @@
 # Task `land_raw_files` · notebook `01_generate_raw_data` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `land_raw_files` · task run 1083923923384494 · result SUCCESS · 2026-11-10 00:22:41 UTC → 2026-11-10 00:23:31 UTC · source `src/notebooks/01_generate_raw_data.py`
+Executed by Lakeflow Job run 886593886805341 · task `land_raw_files` · task run 247833414817654 · result SUCCESS · 2026-11-10 09:02:38 UTC → 2026-11-10 09:03:34 UTC · source `src/notebooks/01_generate_raw_data.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -429,7 +429,7 @@ print(f"payment day-files written: {written_pay}, already present (skipped): {sk
 **Output:**
 
 ```text
-payment day-files written: 1, already present (skipped): 89, claim files written: 1
+payment day-files written: 0, already present (skipped): 90, claim files written: 0
 ```
 
 ```python

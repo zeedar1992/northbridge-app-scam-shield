@@ -1,6 +1,6 @@
 # Task `deploy_model_serving` · notebook `06_deploy_model_serving` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `deploy_model_serving` · task run 518133764689075 · result SUCCESS · 2026-11-10 00:27:57 UTC → 2026-11-10 00:38:47 UTC · source `src/notebooks/06_deploy_model_serving.py`
+Executed by Lakeflow Job run 886593886805341 · task `deploy_model_serving` · task run 863852793987238 · result SUCCESS · 2026-11-10 09:07:32 UTC → 2026-11-10 09:17:22 UTC · source `src/notebooks/06_deploy_model_serving.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -45,7 +45,7 @@ print(f"deploying {MODEL} v{version} -> {EP}")
 **Output:**
 
 ```text
-deploying serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model v4 -> northbridge-scam-risk
+deploying serverless_stable_my49a8_catalog.northbridge_ml.app_scam_risk_model v5 -> northbridge-scam-risk
 ```
 
 ```python
@@ -78,17 +78,16 @@ while time.time() < deadline:
 **Output:**
 
 ```text
-00:28:42 ready: READY config_update: IN_PROGRESS
-00:29:42 ready: READY config_update: IN_PROGRESS
-00:30:42 ready: READY config_update: IN_PROGRESS
-00:31:42 ready: READY config_update: IN_PROGRESS
-00:32:42 ready: READY config_update: IN_PROGRESS
-00:33:42 ready: READY config_update: IN_PROGRESS
-00:34:42 ready: READY config_update: IN_PROGRESS
-00:35:42 ready: READY config_update: IN_PROGRESS
-00:36:42 ready: READY config_update: IN_PROGRESS
-00:37:43 ready: READY config_update: IN_PROGRESS
-00:38:43 ready: READY config_update: NOT_UPDATING
+09:08:17 ready: READY config_update: IN_PROGRESS
+09:09:17 ready: READY config_update: IN_PROGRESS
+09:10:17 ready: READY config_update: IN_PROGRESS
+09:11:17 ready: READY config_update: IN_PROGRESS
+09:12:17 ready: READY config_update: IN_PROGRESS
+09:13:17 ready: READY config_update: IN_PROGRESS
+09:14:17 ready: READY config_update: IN_PROGRESS
+09:15:17 ready: READY config_update: IN_PROGRESS
+09:16:17 ready: READY config_update: IN_PROGRESS
+09:17:17 ready: READY config_update: NOT_UPDATING
 ```
 
 ```python
@@ -138,12 +137,12 @@ dbutils.notebook.exit(json.dumps({"endpoint": EP, "model_version": version, "pre
 ```json
 {
   "endpoint": "northbridge-scam-risk",
-  "model_version": "4",
+  "model_version": "5",
   "predictions": [
     {
       "risk_score": 0.95561,
       "risk_band": "HIGH",
-      "reason_codes": "[\"Payment made minutes after the payee was created\", \"Payee type (personal vs business account)\", \"High payment value\"]"
+      "reason_codes": "[\"Payment made 6 minutes after the payee was created\", \"Payee type (personal vs business account)\", \"High payment value (GBP 4,800)\"]"
     },
     {
       "risk_score": 3e-06,
@@ -151,6 +150,6 @@ dbutils.notebook.exit(json.dumps({"endpoint": EP, "model_version": version, "pre
       "reason_codes": "[]"
     }
   ],
-  "median_latency_ms": 109.5
+  "median_latency_ms": 128.4
 }
 ```

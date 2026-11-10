@@ -1,6 +1,6 @@
 # Task `uc_tags_lineage_audit` · notebook `02_governance_catalog` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `uc_tags_lineage_audit` · task run 493688955409281 · result SUCCESS · 2026-11-10 00:25:04 UTC → 2026-11-10 00:25:56 UTC · source `src/notebooks/02_governance_catalog.py`
+Executed by Lakeflow Job run 886593886805341 · task `uc_tags_lineage_audit` · task run 475611867566209 · result SUCCESS · 2026-11-10 09:04:37 UTC → 2026-11-10 09:05:24 UTC · source `src/notebooks/02_governance_catalog.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -180,6 +180,21 @@ ORDER BY target_table_full_name, source_table_full_name"""))
 | serverless_stable_my49a8_catalog.northbridge_fraud.silver_customers | serverless_stable_my49a8_catalog.northbridge_ml.alert_queue | JOB |
 | serverless_stable_my49a8_catalog.northbridge_fraud.silver_payees | serverless_stable_my49a8_catalog.northbridge_ml.alert_queue | JOB |
 | serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores | serverless_stable_my49a8_catalog.northbridge_ml.alert_queue | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features | serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features | serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics | None |
+| serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores | serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics | JOB |
+| serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores | serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics | None |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features | serverless_stable_my49a8_catalog.northbridge_ml.customer_payee_history | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features | serverless_stable_my49a8_catalog.northbridge_ml.customer_profile | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.silver_customers | serverless_stable_my49a8_catalog.northbridge_ml.customer_profile | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_mule_watchlist | serverless_stable_my49a8_catalog.northbridge_ml.payee_profile | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features | serverless_stable_my49a8_catalog.northbridge_ml.payee_profile | JOB |
+| serverless_stable_my49a8_catalog.northbridge_fraud.silver_payees | serverless_stable_my49a8_catalog.northbridge_ml.payee_profile | JOB |
+| system.__internal_logging.payload_logs | serverless_stable_my49a8_catalog.northbridge_ml.scam_risk_serving_payload | JOB |
+| serverless_stable_my49a8_catalog.northbridge_ml.alert_queue | serverless_stable_my49a8_catalog.northbridge_ops.alert_queue | PIPELINE |
+| serverless_stable_my49a8_catalog.northbridge_ml.customer_payee_history | serverless_stable_my49a8_catalog.northbridge_ops.customer_payee_history | PIPELINE |
+| serverless_stable_my49a8_catalog.northbridge_ml.customer_profile | serverless_stable_my49a8_catalog.northbridge_ops.customer_profile | PIPELINE |
+| serverless_stable_my49a8_catalog.northbridge_ml.payee_profile | serverless_stable_my49a8_catalog.northbridge_ops.payee_profile | PIPELINE |
 
 ### Effective grants on the Northbridge schemas
 
@@ -197,6 +212,8 @@ WHERE schema_name LIKE 'northbridge%' ORDER BY schema_name, grantee, privilege_t
 | account users | northbridge_fraud | USE_SCHEMA |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_fraud | ALL_PRIVILEGES |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_fraud | MANAGE |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_fraud | SELECT |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_fraud | USE_SCHEMA |
 | zeeshan.dar@databricks.com | northbridge_fraud | ALL_PRIVILEGES |
 | zeeshan.dar@databricks.com | northbridge_fraud | MANAGE |
 | account users | northbridge_ml | EXECUTE |
@@ -204,6 +221,9 @@ WHERE schema_name LIKE 'northbridge%' ORDER BY schema_name, grantee, privilege_t
 | account users | northbridge_ml | USE_SCHEMA |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_ml | ALL_PRIVILEGES |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_ml | MANAGE |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_ml | EXECUTE |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_ml | SELECT |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_ml | USE_SCHEMA |
 | zeeshan.dar@databricks.com | northbridge_ml | ALL_PRIVILEGES |
 | zeeshan.dar@databricks.com | northbridge_ml | MANAGE |
 | account users | northbridge_ops | SELECT |
@@ -216,6 +236,8 @@ WHERE schema_name LIKE 'northbridge%' ORDER BY schema_name, grantee, privilege_t
 | account users | northbridge_ops_history | USE_SCHEMA |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_ops_history | ALL_PRIVILEGES |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_ops_history | MANAGE |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_ops_history | SELECT |
+| fabee2fc-7b58-4ba9-9885-75ea672ff64c | northbridge_ops_history | USE_SCHEMA |
 | zeeshan.dar@databricks.com | northbridge_ops_history | ALL_PRIVILEGES |
 | zeeshan.dar@databricks.com | northbridge_ops_history | MANAGE |
 | aec5be3d-de3c-404c-8e60-feed0f265fd3 | northbridge_raw | ALL_PRIVILEGES |

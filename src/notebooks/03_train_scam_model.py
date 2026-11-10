@@ -183,6 +183,45 @@ class ScamRiskModel(mlflow.pyfunc.PythonModel):
             X[c] = pd.Categorical(s.where(s.notna(), None), categories=m["categories"][c])
         return X[m["features"]]
 
+    def _reason(self, f, v):
+        """Value-aware, human-readable reason code (the text must agree with the actual feature value)."""
+        import math
+        txt = self.meta["reason_text"].get(f, f)
+        try:
+            missing = v is None or (isinstance(v, float) and math.isnan(v))
+        except Exception:
+            missing = False
+        if missing:
+            return {"payee_account_age_days": "No inter-bank intelligence on the receiving account's age"}.get(f, txt)
+        if f == "minutes_since_payee_added":
+            return (f"Payment made {v:.0f} minutes after the payee was created" if v < 120 else
+                    f"Payee added only {v / 60:.0f} hours ago" if v < 2880 else f"Payee added only {v / 1440:.0f} days ago")
+        if f == "prior_payments_to_payee":
+            return "No payment history with this payee" if v == 0 else f"Only {v:.0f} previous payment(s) to this payee"
+        if f == "payee_account_age_days":
+            return f"Receiving account opened only {v:.0f} days ago" if v < 365 else f"Receiving account age ({v:.0f} days)"
+        if f == "amount_gbp":
+            return f"High payment value (GBP {v:,.0f})"
+        if f == "amount_to_cust_avg_ratio":
+            return f"Amount is {v:.1f}x this customer's 90-day average"
+        if f == "payee_distinct_senders_7d":
+            return f"Receiving account paid by {v:.0f} different Northbridge customers in 7 days" + (" (mule pattern)" if v >= 3 else "")
+        if f == "is_new_payee":
+            return "Payee added within the last 24 hours" if v else txt
+        if f == "on_active_call":
+            return txt if v else "Session behaviour (no active phone call)"
+        if f == "cop_result":
+            return f"Confirmation of Payee result: {v}"
+        if f == "payee_bank_type":
+            return f"Receiving PSP type {v} is over-represented in mule activity"
+        if f == "reference_risk_keyword":
+            return txt if v else "Payment reference (no scam keywords; may be coached)"
+        if f == "session_duration_sec":
+            return f"Banking session of {v / 60:.1f} minutes"
+        if f == "age_years":
+            return f"Customer age ({v:.0f}) profile targeted by this scam type"
+        return txt
+
     def predict(self, context, model_input, params=None):
         import numpy as np, pandas as pd, json
         m = self.meta
@@ -196,7 +235,7 @@ class ScamRiskModel(mlflow.pyfunc.PythonModel):
             contrib = self.booster.predict(X.iloc[idx], pred_contrib=True)[:, :-1]
             top = np.argsort(-contrib, axis=1)[:, :3]
             for k, i in enumerate(idx):
-                reasons[i] = json.dumps([m["reason_text"].get(feats[j], feats[j]) for j in top[k] if contrib[k, j] > 0])
+                reasons[i] = json.dumps([self._reason(feats[j], X.iloc[i][feats[j]]) for j in top[k] if contrib[k, j] > 0])
         band = np.where(score >= m["critical_threshold"], "CRITICAL", np.where(score >= m["alert_threshold"], "HIGH",
                         np.where(score >= m["alert_threshold"] / 4, "MEDIUM", "LOW")))
         return pd.DataFrame({"risk_score": np.round(score, 6), "risk_band": band, "reason_codes": reasons})

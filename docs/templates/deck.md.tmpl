@@ -2,7 +2,7 @@
 
 **Northbridge Bank · Fraud Strategy & Operations · Proposal to the Executive Committee**
 
-* **{{NET_VALUE}} net annual value**, mostly from APP-scam reimbursement cost Northbridge stops paying
+* **{{NET_VALUE}} net annual value** (range {{SENS_LOW}} to {{SENS_HIGH}}), mostly from APP-scam reimbursement cost Northbridge stops paying
 * **{{MODEL_VR}} of scam value intercepted** with the *same* number of payment holds (today: {{RULES_VR}})
 * **{{FP_RULES}} → {{FP_MODEL}} genuine customers held per scam caught**: fewer good customers blocked
 * **{{ANALYST_HOURS}} analyst hours released per year** through GenAI case notes and call scripts
@@ -55,6 +55,10 @@ PR-AUC {{PR_AUC}} · ROC-AUC {{ROC_AUC}} · LightGBM · value-weighted · time-b
 
 {{BIZ_TABLE}}
 
+**Sensitivity:** model uplift held at its measured value; only the unvalidated assumptions move.
+
+{{SENS_TABLE}}
+
 **ROI ≈ {{ROI}}× run cost · payback ≈ {{PAYBACK}} months.** Assumptions marked as assumptions are validated in the pilot; measured figures come from the hold-out test.
 
 ---
@@ -75,6 +79,8 @@ Raw files ──▶ Lakeflow pipeline ──▶ Unity Catalog ──▶ ML + Gen
 * **Lakebase**: millisecond lookups + transactional analyst decisions; decisions stream back to the lakehouse automatically
 * **Genie**: the Head of Fraud asks questions in plain English over the same governed data
 * **One bundle, one job**: reproducible, promotable to production
+
+**Proof it's one journey:** payment `FP26001105668` (£8,552 to a 41-day-old EMI account) was *not* flagged by the legacy rules. The model scored it **CRITICAL 0.999**, Claude wrote the case note, an analyst stopped it in the app, and the decision flowed back into Unity Catalog seconds later. Every hop is shown with a query in `evidence/trace_one_payment.md`.
 
 ---
 

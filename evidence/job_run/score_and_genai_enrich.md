@@ -1,6 +1,6 @@
 # Task `score_and_genai_enrich` · notebook `04_score_and_genai_enrich` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `score_and_genai_enrich` · task run 302508417748477 · result SUCCESS · 2026-11-10 08:16:57 UTC → 2026-11-10 08:22:53 UTC · source `src/notebooks/04_score_and_genai_enrich.py`
+Executed by Lakeflow Job run 886593886805341 · task `score_and_genai_enrich` · task run 674088591902543 · result SUCCESS · 2026-11-10 09:07:32 UTC → 2026-11-10 09:13:45 UTC · source `src/notebooks/04_score_and_genai_enrich.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -50,7 +50,7 @@ print(f"champion = v{mv.version}; alert_threshold={meta['alert_threshold']:.4f} 
 **Output:**
 
 ```text
-champion = v4; alert_threshold=0.0846 critical=0.9935
+champion = v5; alert_threshold=0.0846 critical=0.9935
 ```
 
 ## 1 · Score all payments
@@ -179,6 +179,7 @@ spark.sql(f"""
 MERGE INTO {CATALOG}.{ML}.alert_queue t USING enriched_alerts s ON t.alert_id = s.alert_id
 WHEN MATCHED THEN UPDATE SET *
 WHEN NOT MATCHED THEN INSERT *
+WHEN NOT MATCHED BY SOURCE THEN DELETE      -- queue = current top-N live alerts; decisions live in Lakebase
 """)
 display(spark.sql(f"""
 SELECT alert_id, customer_display_name, amount_gbp, risk_band, round(risk_score,3) AS risk, suspected_scam_type, recommended_action,
@@ -189,16 +190,16 @@ FROM {CATALOG}.{ML}.alert_queue ORDER BY risk_score DESC LIMIT 10"""))
 
 | alert_id | customer_display_name | amount_gbp | risk_band | risk | suspected_scam_type | recommended_action | legacy_rules_would_alert | analyst_summary_preview |
 |---|---|---|---|---|---|---|---|---|
-| AL-FP26001105668 | M**************n | 8551.7 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | False | The model score is critical (0.999) for a mobile payment of GBP 8,551.70, which is 2.745 times the customer's 90-day average, to a receiving EMI account only 41 |
-| AL-FP26001124967 | M**************n | 10384.21 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The receiving account is only 42 days old and sits with an EMI, and it has received just one sender in 7 days, while the reference 'flight' and the payment at 2 |
-| AL-FP26001110725 | B************y | 200.38 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The payment is to a payee with a Confirmation of Payee NO_MATCH, no prior payment history, and a receiving account that is only 24 days old at an EMI, with the  |
-| AL-FP26001043091 | F************n | 10848.81 | CRITICAL | 0.999 | advance_fee | HOLD_AND_CALL | True | Confirmation of Payee returned NO_MATCH, the receiving account is only 36 days old at a high-street bank, and the payment reference "customs" fits a fee-to-rele |
-| AL-FP26001098751 | O**********l | 10648.52 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | A GBP 10,648.52 telephony payment referenced 'car deposit' is 2.66 times the customer's 90-day average, goes to a payee with no prior payment history, and is he |
-| AL-FP26001087743 | A*******s | 7701.23 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | False | The payment of GBP 7,701.23 is about 5.9 times this customer's 90-day average, goes to an EMI account with a vague 'deposit' reference, and the model scores it  |
-| AL-FP26001100013 | W*************t | 11411.44 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | True | The payee was added only 30 minutes before a first payment of GBP 11,411.44, which is 2.81 times this customer's 90-day average, and the payment has no referenc |
-| AL-FP26001055177 | M**************n | 6719.19 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | True | The payment is GBP 6,719.19 (about 3.0 times the customer's 90-day average) to a payee with a Confirmation of Payee NO_MATCH, sent to a 37-day-old EMI account w |
-| AL-FP26001042663 | F************n | 9221.49 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The payment of GBP 9,221.49 labelled 'Rent Nov' is 1.789 times the customer's 90-day average and goes to a receiving account only 36 days old that has received  |
-| AL-FP26001102160 | W*************t | 14908.24 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | True | The payee was created 175 minutes before a GBP 14,908.24 payment, which is almost twice the customer's 90-day average, and the receiving account is only 24 days |
+| AL-FP26001105668 | M**************n | 8551.7 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | False | The £8,551.70 mobile payment is 2.745 times this customer's 90-day average and goes to a payee added about 25 days ago, held at an EMI whose account is only 41  |
+| AL-FP26001124967 | M**************n | 10384.21 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | A GBP 10,384.21 mobile payment with the reference "flight" is 2.582 times this customer's 90-day average and goes to a payee added 26 days ago whose receiving a |
+| AL-FP26001110725 | B************y | 200.38 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The receiving account is an EMI opened only 24 days ago, the payee was added about 46 hours before this payment, and Confirmation of Payee returned NO_MATCH, wh |
+| AL-FP26001043091 | F************n | 10848.81 | CRITICAL | 0.999 | advance_fee | HOLD_AND_CALL | True | The payee name did not match the account (Confirmation of Payee NO_MATCH), and the receiving account is only 36 days old with a high-street bank type, yet a GBP |
+| AL-FP26001098751 | O**********l | 10648.52 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The payee was added about 22 days ago (31,665.6 minutes), the payment is GBP 10,648.52 (about 2.66 times the customer's 90-day average), and the reference is "c |
+| AL-FP26001087743 | A*******s | 7701.23 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | The payment of GBP 7,701.23 is 5.857 times the customer's 90-day average and was made by mobile, to a payee added about 36 days ago with only 6 prior payments,  |
+| AL-FP26001100013 | W*************t | 11411.44 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | True | A GBP 11,411.44 payment, about 2.81 times this customer's 90-day average, went to a payee added only 30 minutes earlier with no payment reference, and the recei |
+| AL-FP26001055177 | M**************n | 6719.19 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | True | Confirmation of Payee returned NO_MATCH, and the receiving account is a 37-day-old EMI account with only one sender, so the payee's identity and legitimacy are  |
+| AL-FP26001042663 | F************n | 9221.49 | CRITICAL | 0.999 | purchase | HOLD_AND_CALL | False | A GBP 9,221.49 payment, 1.789 times the customer's 90-day average, is going to a payee added about 15 days ago (the new-payee flag reads false, so the record sh |
+| AL-FP26001102160 | W*************t | 14908.24 | CRITICAL | 0.999 | unclear | HOLD_AND_CALL | True | The payee was added about 175 minutes before a GBP 14,908.24 mobile payment to a 24-day-old challenger bank account, which is roughly 1.96 times the customer's  |
 
 ```python
 display(spark.sql(f"""
@@ -210,13 +211,13 @@ FROM {CATALOG}.{ML}.alert_queue GROUP BY ALL ORDER BY alerts DESC"""))
 
 | suspected_scam_type | recommended_action | alerts | avg_risk | genai_errors |
 |---|---|---|---|---|
-| purchase | HOLD_AND_CALL | 95 | 0.923 | 0 |
-| unclear | HOLD_AND_CALL | 84 | 0.947 | 0 |
-| None | None | 51 | 0.685 | 50 |
-| advance_fee | HOLD_AND_CALL | 41 | 0.931 | 0 |
-| impersonation | HOLD_AND_CALL | 38 | 0.937 | 0 |
-| investment | HOLD_AND_CALL | 37 | 0.936 | 0 |
-| invoice_redirection | HOLD_AND_CALL | 3 | 0.991 | 0 |
+| purchase | HOLD_AND_CALL | 91 | 0.926 | 0 |
+| unclear | HOLD_AND_CALL | 79 | 0.942 | 0 |
+| advance_fee | HOLD_AND_CALL | 45 | 0.932 | 0 |
+| impersonation | HOLD_AND_CALL | 40 | 0.936 | 0 |
+| investment | HOLD_AND_CALL | 37 | 0.937 | 0 |
+| invoice_redirection | HOLD_AND_CALL | 5 | 0.967 | 0 |
+| None | None | 2 | 0.996 | 0 |
 | romance | HOLD_AND_CALL | 1 | 0.976 | 0 |
 
 ### One full GenAI case note (verbatim model output)
@@ -231,20 +232,20 @@ for r in spark.sql(f"SELECT alert_id, amount_gbp, reason_codes, suspected_scam_t
 {
   "alert_id": "AL-FP26001105668",
   "amount_gbp": 8551.7,
-  "reason_codes": "[\"Payment made minutes after the payee was created\", \"High payment value\", \"No payment history with this payee\"]",
+  "reason_codes": "[\"Payee added only 25 days ago\", \"High payment value (GBP 8,552)\", \"Only 3 previous payment(s) to this payee\"]",
   "suspected_scam_type": "unclear",
-  "analyst_summary": "The model score is critical (0.999) for a mobile payment of GBP 8,551.70, which is 2.745 times the customer's 90-day average, to a receiving EMI account only 41 days old that has had just one sender in 7 days, with the vague reference 'thanks!'. Data conflicts need checking before the call: new_payee is false and the payee was added about 24.6 days ago (35455.2 minutes), yet the reason code says the payment was made minutes after the payee was created, and Confirmation of Payee matched, which lowers misdirection risk but does not rule out a scam.",
-  "customer_call_script": "Can you talk me through what this payment of \u00a38,551.70 is for?|Can you tell me how you came to be paying this payee and what you know about them?|Is there anything you would like us to check or explain before we decide whether to release the funds?",
+  "analyst_summary": "The \u00a38,551.70 mobile payment is 2.745 times this customer's 90-day average and goes to a payee added about 25 days ago, held at an EMI whose account is only 41 days old, with a vague reference of \"thanks!\" and just one sender in the last 7 days. Mitigating factors include a Confirmation of Payee match, three earlier payments to this payee, and no active call in progress, so the signals justify a conversation but do not yet confirm a scam.",
+  "customer_call_script": "Can you talk me through what this payment of \u00a38,551.70 is for?|How did you come to set up this payee, and what do you know about them?|What would you like us to know about how this payment came about today?",
   "recommended_action": "HOLD_AND_CALL"
 }
 ----------------------------------------------------------------------------------------------------
 {
   "alert_id": "AL-FP26001124967",
   "amount_gbp": 10384.21,
-  "reason_codes": "[\"Payment made minutes after the payee was created\", \"High payment value\", \"No payment history with this payee\"]",
+  "reason_codes": "[\"Payee added only 26 days ago\", \"High payment value (GBP 10,384)\", \"Only 4 previous payment(s) to this payee\"]",
   "suspected_scam_type": "purchase",
-  "analyst_summary": "The receiving account is only 42 days old and sits with an EMI, and it has received just one sender in 7 days, while the reference 'flight' and the payment at 2.58 times the customer's 90-day average point to a possible travel purchase scam. The model's 0.999 score is driven partly by 'payment made minutes after payee created', which conflicts with the recorded 37,462.8 minutes (about 26 days) since the payee was added, so the payee creation timestamp should be checked before the call.",
-  "customer_call_script": "Can you tell me in your own words what this payment is for, and how you came to pay this person or business?|Could you walk me through how you found the booking or the bank details you were given?|Is there anything about the payment, the company or the way you were asked to pay that you'd like to talk through with me?",
+  "analyst_summary": "A GBP 10,384.21 mobile payment with the reference \"flight\" is 2.582 times this customer's 90-day average and goes to a payee added 26 days ago whose receiving account is only 42 days old at an EMI, with a single sender in 7 days, which is a common pattern in fake travel or holiday purchase scams. Mitigating factors are a Confirmation of Payee match and four earlier payments to this payee, so the analyst should check whether the payee is genuine before deciding on release.",
+  "customer_call_script": "Can you tell me in your own words what this payment is for and what you expect to receive in return? | How did you come to be paying this payee, and how did you first find out about them? | What steps have you taken so far to check the booking or the business you are paying, and what did you find?",
   "recommended_action": "HOLD_AND_CALL"
 }
 ----------------------------------------------------------------------------------------------------
@@ -301,10 +302,10 @@ dbutils.notebook.exit(json.dumps({"model_version": int(mv.version), "genai_enric
 
 ```json
 {
-  "model_version": 4,
+  "model_version": 5,
   "genai_enriched": 300,
   "payment_risk_scores": 1127588,
-  "alert_queue": 350,
+  "alert_queue": 300,
   "customer_profile": 50000,
   "payee_profile": 121100,
   "customer_payee_history": 320053

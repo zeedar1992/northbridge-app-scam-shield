@@ -1,6 +1,6 @@
 # Task `publish_to_lakebase` · notebook `05_publish_to_lakebase` (executed, with outputs)
 
-Executed by Lakeflow Job run 590537578235560 · task `publish_to_lakebase` · task run 471860505283008 · result SUCCESS · 2026-11-10 08:46:44 UTC → 2026-11-10 08:47:51 UTC · source `src/notebooks/05_publish_to_lakebase.py`
+Executed by Lakeflow Job run 886593886805341 · task `publish_to_lakebase` · task run 3172300787329 · result SUCCESS · 2026-11-10 09:13:45 UTC → 2026-11-10 09:14:32 UTC · source `src/notebooks/05_publish_to_lakebase.py`
 
 > Exported from the executed job run by `scripts/export_run_evidence.py`. Every output below is real.
 
@@ -208,7 +208,7 @@ northbridge_ops   customer_profile                50,000
 northbridge_ops   payee_profile                  121,100
 scam_ops          alert_status                        12
 scam_ops          case_decisions                      12
-scam_ops          payment_checks                       8
+scam_ops          payment_checks                       9
 ```
 
 ## 3 · Latency evidence: point lookups the real-time payment check performs
@@ -236,8 +236,8 @@ for r in q: print(r)
 ```text
 {
   "lookups": 200,
-  "p50_ms_3_queries": 7.91,
-  "p95_ms_3_queries": 9.64
+  "p50_ms_3_queries": 9.05,
+  "p95_ms_3_queries": 15.36
 }
 ('AL-FP26001105668', 8551.7, 'CRITICAL', 'unclear', 'HOLD_AND_CALL')
 ('AL-FP26001124967', 10384.21, 'CRITICAL', 'purchase', 'HOLD_AND_CALL')
@@ -282,7 +282,7 @@ nanos: 545000000
 |---|---|---|---|
 | lb_case_decisions_history | 12 | 12 | 2026-11-10T08:34:28.395 |
 | lb_alert_status_history | 18 | 12 | 2026-11-10T08:34:28.395 |
-| lb_payment_checks_history | 8 | 8 | 2026-11-10T08:34:35.353 |
+| lb_payment_checks_history | 9 | 9 | 2026-11-10T09:12:51.541 |
 
 ```python
 dbutils.notebook.exit(json.dumps({"latency": latency, "synced_tables": list(SYNCS)}))
@@ -294,8 +294,8 @@ dbutils.notebook.exit(json.dumps({"latency": latency, "synced_tables": list(SYNC
 {
   "latency": {
     "lookups": 200,
-    "p50_ms_3_queries": 7.91,
-    "p95_ms_3_queries": 9.64
+    "p50_ms_3_queries": 9.05,
+    "p95_ms_3_queries": 15.36
   },
   "synced_tables": [
     "alert_queue",

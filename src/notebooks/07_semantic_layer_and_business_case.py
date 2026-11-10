@@ -152,3 +152,33 @@ spark.createDataFrame(bc).write.mode("overwrite").option("overwriteSchema", "tru
 spark.sql(f"COMMENT ON TABLE {CATALOG}.{ML}.business_case IS 'Annualised business case: measured model uplift applied to published UK APP-fraud baselines. Assumptions in basis column.'")
 display(spark.table(f"{CATALOG}.{ML}.business_case").orderBy("sort_order"))
 print(f"ROI multiple: {(total_value) / PLATFORM_RUN_COST:.1f}x  | payback: {12 * PLATFORM_RUN_COST / total_value:.1f} months")
+
+# COMMAND ----------
+
+# MAGIC %md ## Sensitivity: how robust is the value to the assumptions we have NOT yet validated?
+
+# COMMAND ----------
+
+def scenario(name, market_share, intervention, min_saved, run_cost):
+    losses = UK_APP_LOSSES_2024 * market_share
+    att = losses / (1 - R.value_recall * intervention)
+    prevented = att * (M.value_recall - R.value_recall) * intervention
+    net_save = prevented * PSR_REIMBURSED_SHARE * (1 - RECEIVING_PSP_SHARE)
+    analyst = HOLDS_PER_DAY * 365 * min_saved / 60 * LOADED_COST_PER_HOUR
+    total = net_save + analyst - run_cost
+    return {"scenario": name, "market_share": market_share, "intervention_success": intervention, "minutes_saved_per_case": min_saved,
+            "run_cost_gbp": run_cost, "customer_losses_prevented_gbp": round(prevented), "net_reimbursement_avoided_gbp": round(net_save),
+            "analyst_value_gbp": round(analyst), "net_annual_value_gbp": round(total), "roi_multiple": round((total + run_cost) / run_cost, 1)}
+
+sens = pd.DataFrame([
+    scenario("Conservative", 0.020, 0.40, 2.0, 300_000),
+    scenario("Base (headline)", MARKET_SHARE, INTERVENTION_SUCCESS, MINUTES_PER_CASE_TODAY - MINUTES_PER_CASE_GENAI, PLATFORM_RUN_COST),
+    scenario("Upside", 0.030, 0.75, 5.0, 150_000),
+])
+spark.createDataFrame(sens).write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(f"{CATALOG}.{ML}.business_case_sensitivity")
+spark.sql(f"COMMENT ON TABLE {CATALOG}.{ML}.business_case_sensitivity IS 'Business case under conservative / base / upside assumptions (model uplift held at the measured hold-out values).'")
+display(spark.table(f"{CATALOG}.{ML}.business_case_sensitivity"))
+# break-even: how little intervention success still pays for the platform (analyst savings excluded)?
+for x in [i / 100 for i in range(1, 100)]:
+    if scenario("be", MARKET_SHARE, x, 0.0, PLATFORM_RUN_COST)["net_annual_value_gbp"] >= 0:
+        print(f"Break-even on reimbursement savings alone (no analyst benefit): intervention success of {x:.0%}"); break
