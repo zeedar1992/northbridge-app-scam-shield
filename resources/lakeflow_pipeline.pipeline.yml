@@ -1,0 +1,25 @@
+# Lakeflow Spark Declarative Pipeline: landing volume -> bronze -> silver -> gold
+resources:
+  pipelines:
+    northbridge_app_fraud_pipeline:
+      name: northbridge-app-fraud-medallion
+      catalog: ${var.catalog}
+      schema: ${var.fraud_schema}
+      serverless: true
+      photon: true
+      channel: CURRENT
+      continuous: false
+      root_path: ../src/pipeline
+      libraries:
+        - glob:
+            include: ../src/pipeline/transformations/**
+      configuration:
+        landing_path: /Volumes/${var.catalog}/${var.raw_schema}/landing
+        catalog: ${var.catalog}
+        fraud_schema: ${var.fraud_schema}
+      tags:
+        project: northbridge-app-scam-shield
+        data_domain: payments_fraud
+      permissions:
+        - level: CAN_VIEW
+          group_name: users

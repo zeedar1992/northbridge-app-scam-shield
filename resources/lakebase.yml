@@ -1,0 +1,18 @@
+# Lakebase Postgres (Autoscaling) - the operational serving store for the Scam Shield app.
+#   * UC -> Lakebase  : synced tables (alert queue, customer/payee profiles)   [created by 05_publish_to_lakebase]
+#   * App writes      : scam_ops.case_decisions / alert_status / payment_checks  (OLTP, row-level writes)
+#   * Lakebase -> UC  : Lakehouse Sync (CDC, SCD2 history) into northbridge_ops_history  [closes the feedback loop]
+resources:
+  postgres_projects:
+    northbridge_scam_ops:
+      project_id: ${var.lakebase_project}
+      display_name: "Northbridge Scam Shield - operational store"
+      pg_version: 17
+      history_retention_duration: 604800s
+      default_endpoint_settings:
+        autoscaling_limit_min_cu: 0.5
+        autoscaling_limit_max_cu: 4
+        suspend_timeout_duration: 3600s
+      custom_tags:
+        - key: project
+          value: northbridge-app-scam-shield

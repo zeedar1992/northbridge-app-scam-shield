@@ -1,0 +1,476 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "38056effa300dccdff4665b7a809b41d",
+        "question": [
+          "How many alerts in the queue are recommended HOLD_AND_CALL?"
+        ]
+      },
+      {
+        "id": "4e0f694dd67b0a8c5b2897fa7a1c0eec",
+        "question": [
+          "How much more scam value does the model catch than the rules?"
+        ]
+      },
+      {
+        "id": "526d47469ddeb9e62b5e518dc3a0ecf6",
+        "question": [
+          "Top 10 mule-watchlist accounts by distinct senders"
+        ]
+      },
+      {
+        "id": "6bd48e35bbb19a866d4dda8cf54d2d32",
+        "question": [
+          "Which scam type cost us the most in net reimbursement?"
+        ]
+      },
+      {
+        "id": "feed6a598a3ea55e9cc00b5fe7ae3c9d",
+        "question": [
+          "What is the annual net value in the business case?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_daily_fraud_kpis"
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_mule_watchlist"
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features",
+        "column_configs": [
+          {
+            "column_name": "age_band",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "channel",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "cop_result",
+            "enable_entity_matching": true,
+            "description": [
+              "Confirmation of Payee outcome: MATCH, CLOSE_MATCH, NO_MATCH, UNAVAILABLE"
+            ]
+          },
+          {
+            "column_name": "is_app_scam",
+            "description": [
+              "1 = confirmed APP scam (claim upheld, or rejected only for gross negligence); 0 = no confirmed scam (yet)"
+            ],
+            "synonyms": [
+              "fraud",
+              "scam flag"
+            ]
+          },
+          {
+            "column_name": "northbridge_net_cost_gbp",
+            "description": [
+              "Reimbursement paid minus the 50% receiving-PSP contribution"
+            ],
+            "synonyms": [
+              "net reimbursement cost",
+              "liability"
+            ]
+          },
+          {
+            "column_name": "payee_bank_name",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "payee_bank_type",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "region",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "rules_alert",
+            "description": [
+              "Legacy rules engine would have held this payment"
+            ],
+            "synonyms": [
+              "rules flag",
+              "legacy alert"
+            ]
+          },
+          {
+            "column_name": "scam_type",
+            "enable_entity_matching": true,
+            "enable_format_assistance": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.silver_customers",
+        "column_configs": [
+          {
+            "column_name": "date_of_birth",
+            "exclude": true
+          },
+          {
+            "column_name": "email",
+            "exclude": true
+          },
+          {
+            "column_name": "full_name",
+            "exclude": true
+          },
+          {
+            "column_name": "mobile_phone",
+            "exclude": true
+          },
+          {
+            "column_name": "postcode",
+            "exclude": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims",
+        "column_configs": [
+          {
+            "column_name": "outcome",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "scam_type",
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.alert_queue",
+        "column_configs": [
+          {
+            "column_name": "recommended_action",
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "suspected_scam_type",
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.business_case"
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.model_evaluation"
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores",
+        "column_configs": [
+          {
+            "column_name": "risk_band",
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ops_history.lb_case_decisions_history",
+        "column_configs": [
+          {
+            "column_name": "decision",
+            "enable_entity_matching": true
+          }
+        ]
+      }
+    ],
+    "metric_views": [
+      {
+        "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics"
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "e00fba6fedfb8a49e13346f7099a23fc",
+        "content": [
+          "You are the APP-scam analytics assistant for Northbridge Bank (fictional UK retail bank). All data is synthetic. Currency is GBP; use UK spelling.\n",
+          "APP scam = authorised push payment scam: the customer is tricked into sending a Faster Payment to a criminal (often via a money-mule account).\n",
+          "Confirmed scam payments: gold_payment_features.is_app_scam = 1. Scam value = SUM(amount_gbp) WHERE is_app_scam = 1. Labels arrive late via claims, so the last ~10 days (after 2026-10-29) are immature - say so when asked about recent losses.\n",
+          "PSR reimbursement requirement (since 7 Oct 2024): victims are reimbursed up to GBP 85,000 per claim; cost is split 50:50 between the sending bank (Northbridge) and the receiving bank. Northbridge net cost = northbridge_net_cost_gbp.\n",
+          "Legacy control = rules_alert (new payee and >= GBP 3,000, or >= GBP 15,000, or Confirmation of Payee NO_MATCH and >= GBP 2,000). ML control = payment_risk_scores.model_alert. Compare them at the same alert budget using model_evaluation (test window 2026-10-10..2026-10-29).\n",
+          "Value recall = scam value held / total scam value. Precision = scam alerts / all alerts. Prefer the metric view app_scam_metrics with MEASURE() for these KPIs.\n",
+          "Mule accounts: gold_mule_watchlist lists receiving accounts paid by many distinct Northbridge customers. Receiving bank type EMI / CHALLENGER are over-represented.\n",
+          "Analyst decisions written by the Scam Shield app live in northbridge_ops_history.lb_case_decisions_history (Lakehouse Sync CDC history). Use rows where _pg_change_type = 'insert' to count decisions. CONFIRMED_SCAM_STOPPED and REFERRED_TO_POLICE mean money was protected (amount_protected_gbp).\n",
+          "Never return direct identifiers (names, emails, phone numbers, postcodes, dates of birth); refer to customers by customer_id. Use age_band and vulnerability_flag for demographic questions.\n",
+          "Business case figures (annual, GBP) are in business_case: use metric_key and value; the basis column explains each assumption.\n"
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "14a58762d54992910b730482cb936f93",
+        "question": [
+          "What share of impersonation scam value came from customers aged 65 or over?"
+        ],
+        "sql": [
+          "SELECT ROUND(SUM(CASE WHEN age_band IN ('65-74', '75+') THEN amount_gbp ELSE 0 END) / SUM(amount_gbp), 3) AS share_65_plus FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 AND scam_type = 'impersonation'"
+        ]
+      },
+      {
+        "id": "9affc5407e16b9e3470f79957c454f55",
+        "question": [
+          "Which receiving banks received the most confirmed scam value?"
+        ],
+        "sql": [
+          "SELECT payee_bank_name, payee_bank_type, ROUND(SUM(amount_gbp), 0) AS scam_value_gbp, COUNT(DISTINCT payee_id) AS receiving_accounts FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 GROUP BY payee_bank_name, payee_bank_type ORDER BY scam_value_gbp DESC"
+        ]
+      },
+      {
+        "id": "a9a8e71d5f1b6f5b3220f27b667a5dbf",
+        "question": [
+          "How does the ML model compare with the legacy rules engine?"
+        ],
+        "sql": [
+          "SELECT approach, alerts, scams_caught, scam_value_caught_gbp, precision, value_recall FROM serverless_stable_my49a8_catalog.northbridge_ml.model_evaluation ORDER BY approach"
+        ]
+      },
+      {
+        "id": "ad670e1c2157d67f6be8b11cec4f928c",
+        "question": [
+          "Show daily rules alerts versus confirmed scams for October 2026"
+        ],
+        "sql": [
+          "SELECT event_date, rules_alerts, rules_true_positives, confirmed_scam_payments, confirmed_scam_value_gbp FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_daily_fraud_kpis WHERE event_date BETWEEN '2026-10-01' AND '2026-10-31' ORDER BY event_date"
+        ]
+      },
+      {
+        "id": "e1daad3cab8b6f5bf1a361217f3487d8",
+        "question": [
+          "What is the total confirmed APP scam value and net reimbursement cost by scam type?"
+        ],
+        "sql": [
+          "SELECT scam_type, COUNT(*) AS scam_payments, ROUND(SUM(amount_gbp), 0) AS scam_value_gbp, ROUND(SUM(reimbursed_amount_gbp), 0) AS reimbursed_gbp, ROUND(SUM(northbridge_net_cost_gbp), 0) AS net_cost_gbp FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 GROUP BY scam_type ORDER BY scam_value_gbp DESC"
+        ]
+      },
+      {
+        "id": "fc683716cb3725e1132aad779d6a26c4",
+        "question": [
+          "Model value recall by scam type in the test window"
+        ],
+        "sql": [
+          "SELECT `Scam Type`, MEASURE(`Rules Value Recall`) AS rules_value_recall, MEASURE(`Model Value Recall`) AS model_value_recall FROM serverless_stable_my49a8_catalog.northbridge_ml.app_scam_metrics WHERE `Payment Date` BETWEEN '2026-10-10' AND '2026-10-29' AND `Scam Type` <> 'not a scam' GROUP BY ALL ORDER BY 2"
+        ]
+      }
+    ],
+    "join_specs": [
+      {
+        "id": "28e108bc278ac06c2822afefcd3e4243",
+        "left": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.alert_queue",
+          "alias": "alert_queue"
+        },
+        "right": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_ops_history.lb_case_decisions_history",
+          "alias": "lb_case_decisions_history"
+        },
+        "sql": [
+          "`alert_queue`.`alert_id` = `lb_case_decisions_history`.`alert_id`",
+          "--rt=FROM_RELATIONSHIP_TYPE_ONE_TO_MANY--"
+        ]
+      },
+      {
+        "id": "943be84a9d8e681e084c1bb5b5a262fd",
+        "left": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_ml.payment_risk_scores",
+          "alias": "payment_risk_scores"
+        },
+        "right": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features",
+          "alias": "gold_payment_features"
+        },
+        "sql": [
+          "`payment_risk_scores`.`payment_id` = `gold_payment_features`.`payment_id`",
+          "--rt=FROM_RELATIONSHIP_TYPE_ONE_TO_ONE--"
+        ]
+      },
+      {
+        "id": "d6306a88524630a93ad2dd63ccda0c52",
+        "left": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.silver_scam_claims",
+          "alias": "silver_scam_claims"
+        },
+        "right": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features",
+          "alias": "gold_payment_features"
+        },
+        "sql": [
+          "`silver_scam_claims`.`payment_id` = `gold_payment_features`.`payment_id`",
+          "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+        ]
+      },
+      {
+        "id": "fdf62a92815fddabba9b4f86655de493",
+        "left": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features",
+          "alias": "gold_payment_features"
+        },
+        "right": {
+          "identifier": "serverless_stable_my49a8_catalog.northbridge_fraud.silver_customers",
+          "alias": "silver_customers"
+        },
+        "sql": [
+          "`gold_payment_features`.`customer_id` = `silver_customers`.`customer_id`",
+          "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+        ]
+      }
+    ],
+    "sql_snippets": {
+      "measures": [
+        {
+          "id": "aaf2f89992379705dac844c0a2a1d45f",
+          "alias": "net_reimbursement_cost_gbp",
+          "display_name": "Net reimbursement cost (GBP)",
+          "sql": [
+            "SUM(gold_payment_features.northbridge_net_cost_gbp)"
+          ],
+          "synonyms": [
+            "liability",
+            "PSR cost"
+          ]
+        },
+        {
+          "id": "ae7be26cdaa742ca148068d5ac90eaca",
+          "alias": "scam_value_gbp",
+          "display_name": "Confirmed scam value (GBP)",
+          "sql": [
+            "SUM(CASE WHEN gold_payment_features.is_app_scam = 1 THEN gold_payment_features.amount_gbp ELSE 0 END)"
+          ],
+          "synonyms": [
+            "scam losses",
+            "APP losses",
+            "fraud value"
+          ]
+        }
+      ]
+    }
+  },
+  "benchmarks": {
+    "questions": [
+      {
+        "id": "031ee4d51025eadecd90af482ec8c594",
+        "question": [
+          "Which 5 mule watchlist accounts had the most distinct senders in 90 days?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT payee_id, payee_bank_name, distinct_senders_90d, confirmed_scam_value_gbp FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_mule_watchlist ORDER BY distinct_senders_90d DESC LIMIT 5"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "5e74851d7c10779d6f2d14929c4551f4",
+        "question": [
+          "What was the total confirmed APP scam value in the test window 10-29 October 2026?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT ROUND(SUM(amount_gbp), 2) AS scam_value_gbp FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 AND event_date BETWEEN '2026-10-10' AND '2026-10-29'"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "602c9855a412e8733bec79b93d4c9558",
+        "question": [
+          "How many payments did the legacy rules engine flag in total?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT SUM(rules_alerts) AS rules_alerts FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_daily_fraud_kpis"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6e9915ffd20cbafdf06a9a6171e05b44",
+        "question": [
+          "What is Northbridge's total net reimbursement cost by scam type?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT scam_type, ROUND(SUM(northbridge_net_cost_gbp), 2) AS net_cost_gbp FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 GROUP BY scam_type ORDER BY net_cost_gbp DESC"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "87a406c012f0639edc34b1f809c3b5f7",
+        "question": [
+          "What value recall did the ML model achieve compared with the rules engine?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT approach, value_recall FROM serverless_stable_my49a8_catalog.northbridge_ml.model_evaluation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "8c99590a35cdb03f9731810ce19843e8",
+        "question": [
+          "How many confirmed scam payments went to EMI receiving banks?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT COUNT(*) AS scam_payments FROM serverless_stable_my49a8_catalog.northbridge_fraud.gold_payment_features WHERE is_app_scam = 1 AND payee_bank_type = 'EMI'"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cdc8e3338e214d987eaabcc9da5315e4",
+        "question": [
+          "How many alerts are in the analyst queue by recommended action?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT recommended_action, COUNT(*) AS alerts FROM serverless_stable_my49a8_catalog.northbridge_ml.alert_queue GROUP BY recommended_action ORDER BY alerts DESC"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fb7c3a42e458135fb507e26dd5226cad",
+        "question": [
+          "What is the net annual value in the business case?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT value FROM serverless_stable_my49a8_catalog.northbridge_ml.business_case WHERE metric_key = 'total_annual_value'"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

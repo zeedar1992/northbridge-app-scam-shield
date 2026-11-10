@@ -1,0 +1,14 @@
+command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: sql-warehouse
+  - name: NB_SERVING_ENDPOINT
+    valueFrom: serving-endpoint
+  - name: NB_GENIE_SPACE_ID
+    valueFrom: genie-space
+  - name: NB_LAKEBASE_ENDPOINT
+    value: projects/northbridge-scam-ops/branches/production/endpoints/primary
+  - name: NB_LLM_ENDPOINT
+    value: databricks-claude-sonnet-5-5
+  - name: NB_CATALOG
+    value: serverless_stable_my49a8_catalog

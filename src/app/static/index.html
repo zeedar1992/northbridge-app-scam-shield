@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Northbridge · APP Scam Shield</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo">N</span><div><b>Northbridge Bank</b><small>APP Scam Shield</small></div></div>
+    <nav>
+      <button data-view="outcome" class="active">Outcome</button>
+      <button data-view="queue">Analyst queue</button>
+      <button data-view="check">Live payment check</button>
+      <button data-view="genie">Ask Genie</button>
+    </nav>
+    <div class="status" id="health">connecting…</div>
+  </header>
+
+  <main>
+    <!-- ============================== OUTCOME ============================== -->
+    <section id="view-outcome" class="view active">
+      <div class="hero">
+        <h1>Stop more scam money with the same fraud team.</h1>
+        <p>Under the PSR reimbursement rules (cap £85k per claim, cost split 50:50 with the receiving bank), every APP-scam pound that gets through costs Northbridge money.
+           The ML model and GenAI case notes catch more scam value than today's rules engine for the <b>same number of payment holds</b>.</p>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="card"><h3>Scam value intercepted per day: rules vs model <small>(hold-out + live window, £)</small></h3><canvas id="chartDaily" height="130"></canvas></div>
+        <div class="card"><h3>Value caught by scam typology <small>(same alert budget, test window)</small></h3><canvas id="chartType" height="130"></canvas></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Business case <small>(annualised for Northbridge, assumptions explicit)</small></h3><table id="bizcase" class="tbl"></table></div>
+        <div class="card"><h3>Live operations <small>(Lakebase, real time)</small></h3><div id="liveops" class="liveops"></div>
+          <p class="muted">Analyst decisions are written to Lakebase and stream back to Unity Catalog through Lakehouse Sync, then feed model monitoring and retraining.</p></div>
+      </div>
+    </section>
+
+    <!-- ============================== QUEUE ============================== -->
+    <section id="view-queue" class="view">
+      <div class="queue">
+        <div class="card list">
+          <div class="listhead"><h3>Held payments</h3>
+            <select id="statusFilter"><option>OPEN</option><option>IN_REVIEW</option><option>CLOSED</option><option>ALL</option></select></div>
+          <div id="alertList"></div>
+        </div>
+        <div class="card detail" id="alertDetail"><p class="muted">Select an alert to see the GenAI case note, reason codes and the call script.</p></div>
+      </div>
+    </section>
+
+    <!-- ============================== LIVE CHECK ============================== -->
+    <section id="view-check" class="view">
+      <div class="grid2">
+        <div class="card">
+          <h3>Simulate an outbound Faster Payment</h3>
+          <p class="muted">The model scores the payment in real time. Customer and payee context comes from <b>Lakebase</b> point lookups (synced from Unity Catalog), the score from <b>Model Serving</b>, and the customer warning from <b>GenAI</b>.</p>
+          <form id="checkForm" class="form">
+            <label>Customer <select name="customer_id" id="custSel"></select></label>
+            <label>Payee <select name="payee_id" id="payeeSel"></select></label>
+            <label>Amount (£) <input name="amount_gbp" type="number" step="0.01" value="4800" /></label>
+            <label>Reference <input name="reference" value="safe account" /></label>
+            <label>Channel <select name="channel"><option>MOBILE</option><option>WEB</option><option>TELEPHONY</option></select></label>
+            <label>Confirmation of Payee <select name="cop_result"><option>NO_MATCH</option><option>CLOSE_MATCH</option><option>MATCH</option><option>UNAVAILABLE</option></select></label>
+            <label>Payee added (minutes ago) <input name="payee_added_minutes_ago" type="number" value="6" /></label>
+            <label>Session length (s) <input name="session_duration_sec" type="number" value="420" /></label>
+            <label class="chk"><input name="on_active_call" type="checkbox" checked /> Customer is on an active phone call</label>
+            <div class="presets"><button type="button" data-preset="scam">Preset: "safe account" scam</button><button type="button" data-preset="genuine">Preset: genuine builder invoice</button></div>
+            <button class="primary" type="submit">Score payment</button>
+          </form>
+        </div>
+        <div class="card" id="checkResult"><p class="muted">The result will appear here.</p></div>
+      </div>
+    </section>
+
+    <!-- ============================== GENIE ============================== -->
+    <section id="view-genie" class="view">
+      <div class="card">
+        <h3>Ask Genie about scams, losses, alerts and mule accounts</h3>
+        <div class="suggest" id="suggest"></div>
+        <form id="genieForm" class="genieform"><input id="genieQ" placeholder="e.g. Which scam type cost us the most in reimbursements last month?" /><button class="primary">Ask</button>
+          <button type="button" id="genieNew" class="ghost">New conversation</button></form>
+        <div id="genieOut"></div>
+      </div>
+    </section>
+  </main>
+  <footer>Synthetic data only · Northbridge Bank is fictional · Built on Databricks: Lakeflow · Unity Catalog · Lakebase · MLflow/Model Serving · Foundation Model APIs · Genie · Apps</footer>
+</body>
+</html>

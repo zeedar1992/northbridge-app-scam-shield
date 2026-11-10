@@ -1,0 +1,50 @@
+# Northbridge Bank - APP Scam Shield
+# One bundle = the whole data journey:
+#   raw synthetic files -> Lakeflow (SDP pipeline + Job) -> Unity Catalog -> ML + GenAI
+#   -> Lakebase (synced tables + operational case tables) -> Genie Agent -> Databricks App
+bundle:
+  name: northbridge-app-scam-shield
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: UC catalog that hosts every Northbridge schema
+    default: serverless_stable_my49a8_catalog
+  raw_schema:
+    default: northbridge_raw
+  fraud_schema:
+    description: Lakeflow SDP target (bronze / silver / gold)
+    default: northbridge_fraud
+  ml_schema:
+    description: Model, scores, alert queue, metric view, business case
+    default: northbridge_ml
+  ops_schema:
+    description: UC schema whose tables are synced INTO Lakebase (Postgres schema of the same name)
+    default: northbridge_ops
+  ops_history_schema:
+    description: Lakebase -> UC change history (Lakehouse Sync of analyst decisions)
+    default: northbridge_ops_history
+  warehouse_id:
+    description: Serverless SQL warehouse used by the pipeline consumers, Genie and the App
+    default: 1035b8c40230fe40
+  lakebase_project:
+    default: northbridge-scam-ops
+  app_name:
+    default: northbridge-scam-shield
+  serving_endpoint:
+    default: northbridge-scam-risk
+  llm_endpoint:
+    description: Foundation Model API endpoint used for GenAI case narratives
+    default: databricks-claude-sonnet-5-5
+  batch_llm_endpoint:
+    description: Cheaper/faster model used for bulk ai_query enrichment
+    default: databricks-claude-haiku-5-5
+
+targets:
+  fevm:
+    default: true
+    workspace:
+      profile: fevm-serverless-stable-my49a8
+      host: https://fevm-serverless-stable-my49a8.cloud.databricks.com

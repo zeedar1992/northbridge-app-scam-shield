@@ -1,0 +1,48 @@
+# Demo script: tell → show → tell (12 minutes) + objection handling
+
+**Audience:** *Business persona*: Priya, Head of Fraud Operations (domain owner), with the CRO (executive sponsor) in the room. *Technical persona*: Marcus, Head of Fraud Engineering / Enterprise Architect.
+**App:** {{APP_URL}}
+
+## TELL (2 min): the outcome first
+> "Since October 2024, every APP-scam pound that gets past us comes back as a reimbursement claim, and half of it is our cost. Today our rules hold {{RULES_ALERTS}} payments in a three-week window to catch {{RULES_VR}} of scam value. Only {{RULES_PREC}} of those holds are real scams. With the same number of holds, the model catches **{{MODEL_VR}}**. For Northbridge that's about **{{NET_VALUE}} a year** net, and {{ANALYST_HOURS}} analyst hours back. Let me show you what your team would actually use."
+
+## SHOW (8 min)
+1. **Outcome tab (1 min).** Point at the KPI row, then the daily chart: grey is what rules catch, teal is the model. Then the scam-type chart: *purchase and advance-fee scams are where the rules are blind.* Then the business-case table. *"Every line has its basis. Measured figures come from the hold-out; assumptions are labelled and we test them in the pilot."*
+2. **Analyst queue (3 min).** Open the top CRITICAL alert, ideally one tagged **"missed by rules"**. Read the reason codes ("payee added minutes before payment", "receiving account opened recently", "customer on an active phone call"). Then the **GenAI case note** and the three **call-script questions**. Click **Draft customer message** (live Claude Sonnet). Click **Confirmed scam: stop payment** and add a note. The decision log updates instantly: *that's a Lakebase transaction, and it's already streaming back into Unity Catalog through Lakehouse Sync.*
+3. **Live payment check (2 min).** Preset **"safe account" scam** → Score. Show the score, the reason codes, the latency strip (Lakebase lookups, Model Serving, GenAI) and the *pause-and-check* warning the customer would see. Then preset **genuine builder invoice** → released with no friction. *"Stop the scam, not the customer."*
+4. **Ask Genie (2 min).** "Which scam type cost us the most in net reimbursement?" Then the follow-up: "And how many of those did the rules miss?" Open **Generated SQL**: *same governed tables, PII masked, one metric definition.*
+
+## TELL (2 min): so what
+> "Three things change for you, Priya: more scam value stopped with the same team, fewer genuine customers blocked, and every case arrives pre-investigated. For the CRO: a reimbursement line we can forecast and defend to the PSR and the FOS. The ask is a six-week shadow pilot on your own data, with clear exit criteria: +15 points value recall at equal holds and 25% less handling time."
+
+---
+
+## Objection handling
+
+### Business persona (Head of Fraud Ops / CRO)
+| Objection | Response |
+|---|---|
+| "Synthetic data. Why should I believe the uplift?" | "You shouldn't, yet. That's why the business case uses *rates* measured on a hold-out and applies them to UK Finance and PSR baselines, not synthetic totals. The pilot re-measures on your data before anything touches a customer." |
+| "My team can't absorb more alerts." | "They don't have to. The comparison is at the *same* number of holds. If you prefer, the model matches today's catch with {{K_MATCH}} holds instead of {{RULES_ALERTS}}, which is {{ALERT_REDUCTION}}% fewer." |
+| "Complaints: what if we block a genuine payment?" | "Genuine holds per scam fall from {{FP_RULES}} to {{FP_MODEL}}. Every hold has plain-English reasons, and the GenAI customer message is drafted for an analyst to approve." |
+| "What about vulnerable customers?" | "Vulnerability is a feature *and* a queue attribute. The case note flags it, and impersonation scripts are written for older and vulnerable customers." |
+| "How fast to value?" | "Six weeks to a signed-off business case; the platform pieces already exist in your Databricks estate." |
+| "How does this compare with buying a vendor scam-score?" | "Vendor scores are a useful *feature*. We can ingest them into this pipeline. What they don't give you is your own claims labels, your own analyst feedback loop and one governed view across fraud, finance and conduct." |
+
+### Technical persona (Fraud Engineering / Architecture)
+| Objection | Response |
+|---|---|
+| "Training/serving skew: the app rebuilds features." | "Correct, it's the prototype trade-off. `backend.build_features` mirrors the gold SQL one-to-one. In production we'd move to UC Feature Engineering with online feature serving (Lakebase-backed) so batch and online read one definition." |
+| "Real-time latency budget for Faster Payments?" | "Measured in the evidence: Lakebase point lookups p50 {{PG_P50}} ms for three queries; Model Serving round-trip is in the run log. Scale-to-zero is off in production during banking hours." |
+| "Why Lakebase and not just the warehouse?" | "The queue and checks are single-row reads and *transactional* writes (decision + status in one commit). A warehouse is built for scans. Lakebase gives Postgres semantics inside the same governance, and synced tables / Lakehouse Sync remove the ETL in both directions." |
+| "Label leakage / time travel?" | "All window features look strictly backwards (`RANGE … 1 PRECEDING`). The split is by time, and labels come only from claims, which arrive late. The last 10 days are treated as label-immature and excluded from evaluation." |
+| "Model risk / SS1/23?" | "UC model registry with aliases, evaluation tables, lineage from raw file to score, inference tables for monitoring. Champion/challenger is an alias switch." |
+| "PII and the LLM?" | "Masks are applied in Unity Catalog *before* data reaches the LLM, Genie or Lakebase. The LLM sees masked names and behavioural features only, via the Foundation Model API inside the Databricks boundary." |
+| "How does it scale to 190M payments a year?" | "Serverless pipeline with Photon; the gold windows are partitioned by customer/payee. Real-time scoring is stateless behind an autoscaling endpoint, and Lakebase autoscales 0.5–32 CU." |
+| "GenAI hallucination in case notes?" | "The prompt only contains structured facts, the output is schema-constrained JSON, and the recommended action is advisory. The next step is MLflow evaluation with Guidelines judges on a labelled set." |
+
+## Rehearsal checklist
+- [ ] Warm the serving endpoint and Lakebase 5 minutes before (open the Live check tab once)
+- [ ] Pick the top "missed by rules" alert in advance; leave one CRITICAL alert OPEN for the live decision
+- [ ] Practise the 2-minute opening *out loud*, without slides
+- [ ] Have `evidence/` open in a tab for the technical persona

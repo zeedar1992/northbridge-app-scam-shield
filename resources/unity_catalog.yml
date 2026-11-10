@@ -1,0 +1,75 @@
+# Unity Catalog: governed namespaces for every stage of the journey.
+# Column masks, tags, comments and fine-grained grants are applied by
+# src/notebooks/00_governance_setup.py (first task of the journey job).
+resources:
+  schemas:
+    northbridge_raw:
+      catalog_name: ${var.catalog}
+      name: ${var.raw_schema}
+      comment: "LANDING ZONE. Raw synthetic files (CSV/JSON) exactly as delivered by core banking, payments hub and complaints systems. Restricted - data engineering only."
+      properties:
+        data_domain: payments_fraud
+        medallion_layer: landing
+        contains_pii: "true"
+      # no grants: owner-only (data engineering). Consumers read masked silver/gold instead.
+
+    northbridge_fraud:
+      catalog_name: ${var.catalog}
+      name: ${var.fraud_schema}
+      comment: "Lakeflow Spark Declarative Pipeline output: bronze -> silver -> gold for APP scam analytics. PII in silver is column-masked."
+      properties:
+        data_domain: payments_fraud
+        medallion_layer: bronze_silver_gold
+        data_owner: "Head of Fraud Strategy"
+        contains_pii: "true"
+      grants:
+        - principal: account users
+          privileges: [USE_SCHEMA, SELECT]
+        - principal: ${resources.apps.scam_shield_app.service_principal_client_id}   # app SP: least privilege, read-only
+          privileges: [USE_SCHEMA, SELECT]
+
+    northbridge_ml:
+      catalog_name: ${var.catalog}
+      name: ${var.ml_schema}
+      comment: "ML + GenAI layer: UC-registered scam-risk model, payment risk scores, GenAI-enriched alert queue, governed metric view, business case."
+      properties:
+        data_domain: payments_fraud
+        medallion_layer: intelligence
+        data_owner: "Head of Fraud Strategy"
+      grants:
+        - principal: account users
+          privileges: [USE_SCHEMA, SELECT, EXECUTE]
+        - principal: ${resources.apps.scam_shield_app.service_principal_client_id}   # app SP: least privilege, read-only
+          privileges: [USE_SCHEMA, SELECT, EXECUTE]
+
+    northbridge_ops:
+      catalog_name: ${var.catalog}
+      name: ${var.ops_schema}
+      comment: "Operational serving layer. Tables here are Lakebase synced tables (UC Delta -> Postgres) read by the Scam Shield app with millisecond point lookups."
+      properties:
+        data_domain: payments_fraud
+        medallion_layer: serving
+      grants:
+        - principal: account users
+          privileges: [USE_SCHEMA, SELECT]
+
+    northbridge_ops_history:
+      catalog_name: ${var.catalog}
+      name: ${var.ops_history_schema}
+      comment: "Lakehouse Sync (Lakebase -> UC): SCD2 change history of analyst case decisions and live payment checks written by the app. Feeds model feedback + Genie."
+      properties:
+        data_domain: payments_fraud
+        medallion_layer: feedback
+      grants:
+        - principal: account users
+          privileges: [USE_SCHEMA, SELECT]
+        - principal: ${resources.apps.scam_shield_app.service_principal_client_id}   # app SP: least privilege, read-only
+          privileges: [USE_SCHEMA, SELECT]
+
+  volumes:
+    landing:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.northbridge_raw.name}
+      name: landing
+      volume_type: MANAGED
+      comment: "Raw file drop zone: customers/, accounts/, payees/, payments/ (one JSON file per business day), scam_claims/"

@@ -1,0 +1,99 @@
+# Lakeflow Job: the integrated end-to-end journey as ONE DAG.
+#   governance -> land raw files -> Lakeflow SDP pipeline -> UC tags/lineage -> train (MLflow/UC)
+#   -> score + GenAI -> semantic layer (metric view) -> Lakebase publish  + real-time serving endpoint -> business case
+resources:
+  jobs:
+    northbridge_journey:
+      name: northbridge-app-scam-shield-journey
+      description: "Northbridge Bank APP Scam Shield - raw synthetic data to Lakebase-served, GenAI-explained scam alerts."
+      performance_target: PERFORMANCE_OPTIMIZED
+      max_concurrent_runs: 1
+      tags:
+        project: northbridge-app-scam-shield
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: through_date
+          default: "2026-11-07"
+      tasks:
+        - task_key: uc_governance_setup
+          notebook_task:
+            notebook_path: ../src/notebooks/00_governance_setup.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              fraud_schema: ${var.fraud_schema}
+              raw_schema: ${var.raw_schema}
+
+        - task_key: land_raw_files
+          depends_on: [{task_key: uc_governance_setup}]
+          notebook_task:
+            notebook_path: ../src/notebooks/01_generate_raw_data.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              raw_schema: ${var.raw_schema}
+              through_date: "{{job.parameters.through_date}}"
+
+        - task_key: lakeflow_medallion_pipeline
+          depends_on: [{task_key: land_raw_files}]
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.northbridge_app_fraud_pipeline.id}
+            full_refresh: false
+
+        - task_key: uc_tags_lineage_audit
+          depends_on: [{task_key: lakeflow_medallion_pipeline}]
+          notebook_task:
+            notebook_path: ../src/notebooks/02_governance_catalog.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              fraud_schema: ${var.fraud_schema}
+
+        - task_key: train_scam_model
+          depends_on: [{task_key: lakeflow_medallion_pipeline}]
+          notebook_task:
+            notebook_path: ../src/notebooks/03_train_scam_model.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              fraud_schema: ${var.fraud_schema}
+              ml_schema: ${var.ml_schema}
+
+        - task_key: score_and_genai_enrich
+          depends_on: [{task_key: train_scam_model}]
+          notebook_task:
+            notebook_path: ../src/notebooks/04_score_and_genai_enrich.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              fraud_schema: ${var.fraud_schema}
+              ml_schema: ${var.ml_schema}
+              batch_llm_endpoint: ${var.batch_llm_endpoint}
+              max_genai_alerts: "300"
+
+        - task_key: semantic_layer_business_case
+          depends_on: [{task_key: score_and_genai_enrich}]
+          notebook_task:
+            notebook_path: ../src/notebooks/07_semantic_layer_and_business_case.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              fraud_schema: ${var.fraud_schema}
+              ml_schema: ${var.ml_schema}
+
+        - task_key: publish_to_lakebase
+          depends_on: [{task_key: score_and_genai_enrich}]
+          notebook_task:
+            notebook_path: ../src/notebooks/05_publish_to_lakebase.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              ml_schema: ${var.ml_schema}
+              ops_schema: ${var.ops_schema}
+              ops_history_schema: ${var.ops_history_schema}
+              lakebase_project: ${var.lakebase_project}
+              app_name: ${var.app_name}
+
+        - task_key: deploy_model_serving
+          depends_on: [{task_key: train_scam_model}]
+          notebook_task:
+            notebook_path: ../src/notebooks/06_deploy_model_serving.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              ml_schema: ${var.ml_schema}
+              serving_endpoint: ${var.serving_endpoint}
+              app_name: ${var.app_name}
